@@ -7,12 +7,12 @@ let googleMapsPromise: Promise<typeof google> | null = null;
  * Returns a singleton Loader instance configured with application settings.
  */
 export function getMapsLoader(): Loader {
-  if (!loaderInstance) {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+  if (!loaderInstance || loaderInstance.apiKey !== apiKey) {
     loaderInstance = new Loader({
       apiKey,
       version: "weekly",
-      libraries: ["places", "geometry"],
+      libraries: ["places", "geometry", "marker"],
     });
   }
   return loaderInstance;

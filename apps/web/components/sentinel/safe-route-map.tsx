@@ -87,7 +87,7 @@ export function SafeRouteMap({
         const map = new Map(mapContainerRef.current, {
           center: defaultCenter,
           zoom: 15,
-          styles: MAP_STYLES,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID",
           disableDefaultUI: true,
           zoomControl: true,
           mapTypeControl: false,

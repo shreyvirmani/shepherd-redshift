@@ -270,6 +270,7 @@ export function SafeRouteNavigator() {
   const [showLightingLayer, setShowLightingLayer] = React.useState(true);
   const [showIncidentLayer, setShowIncidentLayer] = React.useState(true);
   const [showHavenLayer, setShowHavenLayer] = React.useState(true);
+  const [mapAuthError, setMapAuthError] = React.useState<string | null>(null);
 
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
   const mapInstanceRef = React.useRef<google.maps.Map | null>(null);
@@ -281,6 +282,17 @@ export function SafeRouteNavigator() {
   const hasApiKey = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
   const currentCorridor = PRESET_CORRIDORS.find((c) => c.id === selectedPresetId) ?? PRESET_CORRIDORS[0];
   const activeRoute = selectedRouteType === "safe" ? currentCorridor.safeRoute : currentCorridor.shortestRoute;
+
+  // Intercept Google Maps auth failure events (e.g. ApiTargetBlockedMapError)
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const prev = (window as any).gm_authFailure;
+      (window as any).gm_authFailure = () => {
+        if (typeof prev === "function") prev();
+        setMapAuthError("ApiTargetBlockedMapError: Maps JavaScript API is not enabled or is restricted for this key in Google Cloud Console.");
+      };
+    }
+  }, []);
 
   // Initialize or update real Google Maps if API key is present
   React.useEffect(() => {
@@ -318,13 +330,9 @@ export function SafeRouteNavigator() {
         const map = mapInstanceRef.current ?? new Map(mapContainerRef.current, {
           center,
           zoom: 15,
+          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID",
           disableDefaultUI: true,
           zoomControl: true,
-          styles: [
-            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] },
-            { featureType: "transit", stylers: [{ visibility: "off" }] },
-            { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
-          ],
         });
         mapInstanceRef.current = map;
 
@@ -397,6 +405,46 @@ export function SafeRouteNavigator() {
           });
         }
 
+        // Origin Marker (Blue)
+        try {
+          const originMarker = new google.maps.Marker({
+            map,
+            position: currentCorridor.originCoords,
+            title: `Origin: ${currentCorridor.originName}`,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 8,
+              fillColor: "#2563eb",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2,
+            },
+          });
+          markersRef.current.push(originMarker);
+        } catch (e) {
+          console.warn("Origin marker error:", e);
+        }
+
+        // Destination Marker (Emerald)
+        try {
+          const destMarker = new google.maps.Marker({
+            map,
+            position: currentCorridor.destCoords,
+            title: `Destination: ${currentCorridor.destinationName}`,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 9,
+              fillColor: "#065f46",
+              fillOpacity: 1,
+              strokeColor: "#ffffff",
+              strokeWeight: 2.5,
+            },
+          });
+          markersRef.current.push(destMarker);
+        } catch (e) {
+          console.warn("Destination marker error:", e);
+        }
+
         // Fit map bounds
         const bounds = new google.maps.LatLngBounds();
         bounds.extend(currentCorridor.originCoords);
@@ -404,8 +452,9 @@ export function SafeRouteNavigator() {
         currentCorridor.safeRoute.path.forEach((p) => bounds.extend(p));
         currentCorridor.shortestRoute.path.forEach((p) => bounds.extend(p));
         map.fitBounds(bounds, 40);
-      } catch (err) {
+      } catch (err: any) {
         console.warn("Dashboard map error:", err);
+        setMapAuthError(err?.message || "Failed to load Google Maps");
       }
     }
 
@@ -651,9 +700,24 @@ export function SafeRouteNavigator() {
             </div>
           </div>
 
+          {/* Warning banner if API key is blocked or missing required service */}
+          {mapAuthError && (
+            <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-900 dark:text-amber-200">
+              <AlertTriangle className="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
+              <div className="space-y-0.5">
+                <p className="font-semibold text-amber-950 dark:text-amber-100">
+                  Google Maps API Permission Required:
+                </p>
+                <p className="text-amber-800 dark:text-amber-300">
+                  Your API key was blocked by Google (<code className="rounded bg-amber-500/20 px-1 py-0.5">ApiTargetBlockedMapError</code>). Please enable &quot;Maps JavaScript API&quot; in Google Cloud Console or remove key restrictions. Interactive vector mode is active below.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* Map Canvas / Vector Simulation */}
           <div className="relative h-72 sm:h-80 w-full overflow-hidden rounded-xl border border-border bg-card shadow-inner">
-            {hasApiKey ? (
+            {hasApiKey && !mapAuthError ? (
               <div ref={mapContainerRef} className="h-full w-full" />
             ) : (
               /* High-fidelity Vector Simulation with full interactive parity */
