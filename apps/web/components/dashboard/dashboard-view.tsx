@@ -35,6 +35,7 @@ import {
 } from "@/components/shared/status-badges";
 import { StatCard } from "@/components/shared/stat-card";
 import { CategoryChart } from "@/components/dashboard/category-chart";
+import { SafeRouteNavigator } from "@/components/dashboard/safe-route-navigator";
 import { checkInToSession } from "@/lib/api";
 import { errorMessage } from "@/lib/api/client";
 import { useAsyncData } from "@/lib/hooks/use-async-data";
@@ -177,6 +178,9 @@ export function DashboardView() {
           href="/safecircle"
         />
       </div>
+
+      {/* SafeRoute Intelligence Map & Multi-Factor Route Safety */}
+      <SafeRouteNavigator />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <Card className="lg:col-span-2">

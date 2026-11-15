@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   AlertCircle,
   CheckCircle2,
@@ -29,6 +30,16 @@ import {
 import type { LocationUpdateInput, SentinelSession, VerificationRecord } from "@/lib/types/sentinel";
 import { QuickEvidenceRecorder } from "./quick-evidence-recorder";
 import { SafetyVerificationModal } from "./safety-verification-modal";
+
+const SafeRouteMap = dynamic(
+  () => import("./safe-route-map").then((mod) => mod.SafeRouteMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-52 w-full animate-pulse rounded-xl bg-zinc-100 dark:bg-zinc-800" />
+    ),
+  },
+);
 
 interface MonitoringViewProps {
   session: SentinelSession;
@@ -353,6 +364,13 @@ export function MonitoringView({
               </div>
             </div>
           </div>
+
+          {/* Safe Route Map & Protective Corridor */}
+          <SafeRouteMap
+            session={currentSession}
+            currentCoords={lastCoords}
+            corridorRadiusMeters={200}
+          />
 
           {gpsError && (
             <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 p-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-300">

@@ -32,6 +32,7 @@ import type { SentinelSession, TravelMode } from "@/lib/types/sentinel";
 import { LiveIncidentView } from "./live-incident-view";
 import { MonitoringView } from "./monitoring-view";
 import { SentinelDemoSimulator } from "./sentinel-demo-simulator";
+import { DestinationAutocomplete } from "./destination-autocomplete";
 
 const DESTINATION_PRESETS = [
   "Central Metro Station Exit 2",
@@ -48,6 +49,8 @@ export function SentinelHubView() {
 
   // Form state
   const [destination, setDestination] = useState("");
+  const [destLat, setDestLat] = useState<number | undefined>();
+  const [destLng, setDestLng] = useState<number | undefined>();
   const [travelMode, setTravelMode] = useState<TravelMode>("walking");
   const [durationMinutes, setDurationMinutes] = useState<number>(30);
   const [corridorRadius, setCorridorRadius] = useState<number>(200);
@@ -112,6 +115,8 @@ export function SentinelHubView() {
       const eta = new Date(Date.now() + durationMinutes * 60000).toISOString();
       const session = await startSentinelSession({
         destination_name: destination.trim(),
+        destination_lat: destLat,
+        destination_lng: destLng,
         travel_mode: travelMode,
         expected_arrival: eta,
         start_lat: startLat,
@@ -223,11 +228,15 @@ export function SentinelHubView() {
                     <Label htmlFor="destination" className="text-xs font-semibold">
                       Destination
                     </Label>
-                    <Input
+                    <DestinationAutocomplete
                       id="destination"
                       placeholder="e.g., Central Metro Station, Office, Home"
                       value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
+                      onChange={(name, lat, lng) => {
+                        setDestination(name);
+                        setDestLat(lat);
+                        setDestLng(lng);
+                      }}
                       required
                     />
                     <div className="flex flex-wrap gap-1.5 pt-1">
@@ -236,7 +245,11 @@ export function SentinelHubView() {
                           key={p}
                           type="button"
                           className="rounded-full border border-zinc-200 bg-zinc-50 px-2 py-0.5 text-[10px] text-zinc-700 hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-                          onClick={() => setDestination(p)}
+                          onClick={() => {
+                            setDestination(p);
+                            setDestLat(undefined);
+                            setDestLng(undefined);
+                          }}
                         >
                           + {p}
                         </button>

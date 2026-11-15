@@ -38,6 +38,8 @@ export interface SentinelSession {
   destination_name: string;
   destination_lat?: number | null;
   destination_lng?: number | null;
+  start_lat?: number | null;
+  start_lng?: number | null;
   expected_arrival: string;
   travel_mode: TravelMode;
   trusted_contact_ids: string[];

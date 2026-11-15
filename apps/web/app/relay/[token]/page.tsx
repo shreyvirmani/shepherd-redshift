@@ -111,6 +111,10 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
     ? `https://www.google.com/maps/search/?api=1&query=${relayData.last_location.latitude},${relayData.last_location.longitude}`
     : null;
 
+  const staticMapUrl = relayData.last_location && process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    ? `https://maps.googleapis.com/maps/api/staticmap?center=${relayData.last_location.latitude},${relayData.last_location.longitude}&zoom=16&size=400x200&markers=color:red%7C${relayData.last_location.latitude},${relayData.last_location.longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+    : null;
+
   return (
     <div className="min-h-screen bg-zinc-100/60 p-4 sm:p-8 dark:bg-zinc-950">
       <div className="mx-auto max-w-lg space-y-4">
@@ -171,6 +175,14 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
                     {relayData.last_location.latitude.toFixed(5)}, {relayData.last_location.longitude.toFixed(5)}
                   </span>
                 </div>
+
+                {staticMapUrl && (
+                  <img
+                    src={staticMapUrl}
+                    alt="Last known location map"
+                    className="w-full rounded-lg mt-2"
+                  />
+                )}
 
                 {mapUrl && (
                   <a
