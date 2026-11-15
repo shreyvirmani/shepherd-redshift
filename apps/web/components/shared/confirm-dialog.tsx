@@ -68,8 +68,8 @@ export function ConfirmDialog({
         </DialogHeader>
 
         {error ? (
-          <div className="flex items-start gap-2 rounded-md border border-[#f0cdc8] bg-[#fcf2f0] px-3 py-2 text-sm text-[#8f2a22]">
-            <AlertTriangle className="mt-0.5 size-4 shrink-0" />
+          <div className="flex items-start gap-2 rounded-md border border-[#D94B5B]/25 bg-[#D94B5B]/10 px-3 py-2 text-sm text-[#D94B5B]">
+            <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#D94B5B]" />
             <p>{error}</p>
           </div>
         ) : null}

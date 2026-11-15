@@ -527,7 +527,7 @@ export function EvidenceView() {
                               : "Verify hash"}
                           </Button>
                           {verification?.status === "verified" ? (
-                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#1c6b47]">
+                            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#36866B]">
                               <CheckCircle2 className="size-3.5" />
                               Matches recorded reference
                               {isMockApiEnabled ? " (simulated)" : ""}

@@ -112,8 +112,8 @@ function SessionCountdown({ deadline }: { deadline: string }) {
     <span
       className={
         expired
-          ? "inline-flex items-center gap-1 text-[11px] font-medium text-[#8a5a00]"
-          : "inline-flex items-center gap-1 text-[11px] font-medium text-[#1f5b7a]"
+          ? "inline-flex items-center gap-1 text-[11px] font-medium text-[#D69A3D]"
+          : "inline-flex items-center gap-1 text-[11px] font-medium text-[#6587B7]"
       }
     >
       <Clock3 className="size-3" />
@@ -717,7 +717,7 @@ export function SafeCircleView() {
                           </Button>
                         ) : null}
                         {session.status === "checked_in" ? (
-                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#1c6b47]">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-[#36866B]">
                             <CheckCircle2 className="size-3.5" />
                             Checked in{" "}
                             {session.checked_in_at
@@ -726,7 +726,7 @@ export function SafeCircleView() {
                           </span>
                         ) : null}
                         {session.status === "active" && deadlinePassed ? (
-                          <span className="text-[11px] text-[#8a5a00]">
+                          <span className="text-[11px] text-[#D69A3D]">
                             The deadline has passed. The API marks this session
                             expired.
                           </span>
@@ -740,7 +740,7 @@ export function SafeCircleView() {
                           </span>
                         ) : null}
                         {session.status === "expired" ? (
-                          <span className="text-[11px] text-[#8a5a00]">
+                          <span className="text-[11px] text-[#D69A3D]">
                             No check-in was recorded before the deadline.
                           </span>
                         ) : null}

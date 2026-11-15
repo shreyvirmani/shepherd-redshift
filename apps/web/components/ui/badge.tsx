@@ -9,14 +9,14 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default: "border-transparent bg-primary text-primary-foreground",
-        secondary: "border-transparent bg-secondary text-secondary-foreground",
-        outline: "border-border bg-card text-foreground",
-        muted: "border-transparent bg-muted text-muted-foreground",
-        destructive: "border-transparent bg-destructive/10 text-destructive",
-        success: "border-[#c9e2d3] bg-[#e7f1ea] text-[#1c6b47]",
-        warning: "border-[#ecd9b4] bg-[#f8efdc] text-[#8a5a00]",
-        info: "border-[#cfdcee] bg-[#e9eef7] text-[#274a78]",
+        default: "border-transparent bg-linear-to-r from-[#C65D89] to-[#DF8EAF] text-white",
+        secondary: "border-transparent bg-[#FCE7EF] text-[#873B60]",
+        outline: "border-[#F0DCE5] bg-card text-[#30212A]",
+        muted: "border-transparent bg-[#FFF4F7] text-[#81717A]",
+        destructive: "border-[#D94B5B]/20 bg-[#D94B5B]/10 text-[#D94B5B]",
+        success: "border-[#36866B]/20 bg-[#36866B]/10 text-[#36866B]",
+        warning: "border-[#D69A3D]/20 bg-[#D69A3D]/10 text-[#D69A3D]",
+        info: "border-[#6587B7]/20 bg-[#6587B7]/10 text-[#6587B7]",
       },
     },
     defaultVariants: {

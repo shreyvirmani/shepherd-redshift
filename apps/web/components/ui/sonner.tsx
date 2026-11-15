@@ -11,15 +11,15 @@ function Toaster() {
       toastOptions={{
         classNames: {
           toast:
-            "!rounded-lg !border !border-border !bg-card !text-foreground !shadow-[0_16px_40px_-16px_rgba(11,18,16,0.32)]",
+            "!rounded-lg !border !border-[#F0DCE5] !bg-card !text-foreground !shadow-[0_16px_40px_-16px_rgba(56,32,47,0.18)]",
           title: "!text-sm !font-semibold",
           description: "!text-sm !text-muted-foreground",
           actionButton: "!bg-primary !text-primary-foreground",
           cancelButton: "!bg-muted !text-muted-foreground",
-          closeButton: "!border-border !bg-card",
-          success: "!border-[#c9e2d3]",
-          error: "!border-[#f0cdc8]",
-          warning: "!border-[#ecd9b4]",
+          closeButton: "!border-[#F0DCE5] !bg-card",
+          success: "!border-[#36866B]/30",
+          error: "!border-[#D94B5B]/30",
+          warning: "!border-[#D69A3D]/30",
         },
       }}
     />

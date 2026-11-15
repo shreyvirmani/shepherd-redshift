@@ -17,12 +17,12 @@ import { cn } from "@/lib/utils/cn";
 type Tone = "success" | "warning" | "destructive" | "info" | "muted" | "default";
 
 const DOT_TONES: Record<Tone, string> = {
-  success: "bg-[#1c6b47]",
-  warning: "bg-[#9a6100]",
-  destructive: "bg-[#b3261e]",
-  info: "bg-[#3c6495]",
-  muted: "bg-muted-foreground/60",
-  default: "bg-primary-foreground",
+  success: "bg-[#36866B]",
+  warning: "bg-[#D69A3D]",
+  destructive: "bg-[#D94B5B]",
+  info: "bg-[#6587B7]",
+  muted: "bg-[#81717A]/60",
+  default: "bg-[#C65D89]",
 };
 
 export function StatusBadge({

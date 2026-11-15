@@ -353,7 +353,7 @@ export function SettingsView() {
                   ) : (
                     <Badge
                       variant="outline"
-                      className="border-[#c9e2d3] bg-[#f1f7f3] text-[#1a5c3d]"
+                      className="border-[#36866B]/20 bg-[#36866B]/10 text-[#36866B]"
                     >
                       Supabase authenticated
                     </Badge>

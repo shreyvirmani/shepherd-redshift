@@ -93,16 +93,16 @@ export function LoginForm() {
         </p>
       </div>
 
-      <div className="rounded-xl border border-[#c9e2d3] bg-[#f1f7f3] p-4 text-[#1a5c3d]">
+      <div className="rounded-xl border border-[#F0DCE5] bg-[#FFF4F7] p-4 text-[#873B60]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="space-y-1">
             <div className="flex items-center gap-1.5">
-              <FlaskConical className="size-3.5 text-[#1c6b47]" />
-              <p className="text-xs font-semibold uppercase tracking-wider text-[#1c6b47]">
+              <FlaskConical className="size-3.5 text-[#C65D89]" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-[#C65D89]">
                 Demo Testing Account
               </p>
             </div>
-            <p className="text-xs text-[#1a5c3d]/90 font-mono">
+            <p className="text-xs text-[#873B60]/90 font-mono">
               demo@shepherd.app &middot; DemoUser123!
             </p>
           </div>
@@ -114,7 +114,7 @@ export function LoginForm() {
               form.setValue("password", "DemoUser123!");
               handleDemo();
             }}
-            className="bg-[#0f5a4e] text-xs font-medium text-white shadow-sm hover:bg-[#0c4c42]"
+            className="bg-linear-to-r from-[#C65D89] to-[#DF8EAF] text-xs font-semibold text-white shadow-sm hover:from-[#A74773] hover:to-[#C65D89]"
           >
             1-Click Demo Login
             <ArrowRight className="size-3.5" />

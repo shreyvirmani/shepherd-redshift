@@ -72,6 +72,54 @@ export function MonitoringView({
     session.active_verification || null,
   );
   const [actionLoading, setActionLoading] = useState(false);
+  const [holdProgress, setHoldProgress] = useState(0);
+  const holdIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const clearHoldInterval = () => {
+    if (holdIntervalRef.current) {
+      clearInterval(holdIntervalRef.current);
+      holdIntervalRef.current = null;
+    }
+    setHoldProgress(0);
+  };
+
+  const handlePointerDown = () => {
+    if (actionLoading) return;
+    clearHoldInterval();
+    const startTime = Date.now();
+    const duration = 1200;
+
+    holdIntervalRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(100, (elapsed / duration) * 100);
+      setHoldProgress(progress);
+
+      if (progress >= 100) {
+        if (holdIntervalRef.current) {
+          clearInterval(holdIntervalRef.current);
+          holdIntervalRef.current = null;
+        }
+        setHoldProgress(0);
+        handleSilentAssist();
+      }
+    }, 20);
+  };
+
+  const handlePointerUp = () => {
+    clearHoldInterval();
+  };
+
+  const handlePointerLeave = () => {
+    clearHoldInterval();
+  };
+
+  useEffect(() => {
+    return () => {
+      if (holdIntervalRef.current) {
+        clearInterval(holdIntervalRef.current);
+      }
+    };
+  }, []);
 
   const watchIdRef = useRef<number | null>(null);
   const lastPingTimeRef = useRef<number>(0);
@@ -284,7 +332,7 @@ export function MonitoringView({
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div>
               <div className="flex items-center gap-2">
-                <Navigation className="size-4 text-emerald-600 animate-spin" style={{ animationDuration: "8s" }} />
+                <Navigation className="size-4 text-[#C65D89] animate-spin" style={{ animationDuration: "8s" }} />
                 <CardTitle className="text-lg font-bold">
                   Heading to {currentSession.destination_name}
                 </CardTitle>
@@ -329,8 +377,23 @@ export function MonitoringView({
                 <Compass className="size-3.5 text-zinc-400" />
                 <span>GPS Status</span>
               </div>
-              <div className="mt-1 font-semibold text-xs capitalize text-zinc-800 dark:text-zinc-200">
-                {gpsStatus}
+              <div className="mt-1 flex items-center justify-center gap-1.5 font-semibold text-xs text-zinc-800 dark:text-zinc-200">
+                {gpsStatus === "active" ? (
+                  <>
+                    <span className="inline-block size-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span>Active</span>
+                  </>
+                ) : gpsStatus === "searching" ? (
+                  <>
+                    <span className="inline-block size-2.5 rounded-full bg-amber-400 animate-ping" />
+                    <span>Searching</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="inline-block size-2.5 rounded-full bg-rose-500" />
+                    <span>No GPS</span>
+                  </>
+                )}
               </div>
             </div>
 
@@ -350,7 +413,10 @@ export function MonitoringView({
                 <span>Est. Arrival</span>
               </div>
               <div className="mt-1 font-semibold text-xs text-zinc-800 dark:text-zinc-200">
-                {minutesToEta > 0 ? `${minutesToEta}m` : "Overdue"}
+                <div>{etaDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                <div className="text-[10px] font-normal text-zinc-500">
+                  {minutesToEta > 0 ? `in ${minutesToEta}m` : 'Overdue'}
+                </div>
               </div>
             </div>
 
@@ -435,18 +501,51 @@ export function MonitoringView({
 
           {/* Silent Assist Distress Trigger Button */}
           <div className="pt-2">
-            <Button
-              type="button"
-              variant="destructive"
-              className="h-13 w-full bg-linear-to-r from-rose-600 to-red-600 text-base font-bold text-white shadow-md hover:from-rose-700 hover:to-red-700 active:scale-[0.99]"
-              disabled={actionLoading}
-              onClick={handleSilentAssist}
-            >
-              <ShieldAlert className="mr-2 size-5" />
-              SILENT ASSIST — Trigger Immediate Distress
-            </Button>
+            <div className="relative flex items-center justify-center">
+              <Button
+                type="button"
+                variant="destructive"
+                className="relative h-14 w-full select-none touch-none overflow-hidden bg-linear-to-r from-rose-600 to-red-600 text-base font-bold text-white shadow-md hover:from-rose-700 hover:to-red-700 active:scale-[0.99]"
+                disabled={actionLoading}
+                onPointerDown={handlePointerDown}
+                onPointerUp={handlePointerUp}
+                onPointerLeave={handlePointerLeave}
+                onPointerCancel={handlePointerUp}
+                onContextMenu={(e) => e.preventDefault()}
+              >
+                <div className="relative flex items-center justify-center gap-2.5">
+                  <div className="relative flex size-9 items-center justify-center shrink-0">
+                    <svg className="size-9 -rotate-90" viewBox="0 0 36 36">
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15"
+                        className="text-white/25"
+                        strokeWidth="3"
+                        stroke="currentColor"
+                        fill="none"
+                      />
+                      <circle
+                        cx="18"
+                        cy="18"
+                        r="15"
+                        className="text-white transition-all duration-75"
+                        strokeWidth="3"
+                        strokeDasharray={94.25}
+                        strokeDashoffset={94.25 * (1 - holdProgress / 100)}
+                        strokeLinecap="round"
+                        stroke="currentColor"
+                        fill="none"
+                      />
+                    </svg>
+                    <ShieldAlert className="absolute size-4.5 text-white" />
+                  </div>
+                  <span>Hold to Get Help</span>
+                </div>
+              </Button>
+            </div>
             <p className="mt-1 text-center text-[10px] text-zinc-500">
-              One-touch activation discreetly notifies designated SafeCircle contacts with your live GPS location.
+              Hold to discreetly notify designated SafeCircle contacts with your live GPS location.
             </p>
           </div>
         </CardContent>

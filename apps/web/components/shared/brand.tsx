@@ -16,11 +16,11 @@ export function ShieldMark({
     >
       <path
         d="M16 3.5 26 7v8.2c0 6.3-4.2 11.2-10 13.3-5.8-2.1-10-7-10-13.3V7l10-3.5Z"
-        className={tone === "dark" ? "fill-[#dcebe4]" : "fill-[#0f5a4e]"}
+        className={tone === "dark" ? "fill-[#DF8EAF]" : "fill-[#C65D89]"}
       />
       <path
         d="m11.4 15.6 3.2 3.2 6-6.4"
-        stroke={tone === "dark" ? "#0f5a4e" : "#f4faf7"}
+        stroke={tone === "dark" ? "#38202F" : "#FFFFFF"}
         strokeWidth="2.2"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -45,7 +45,7 @@ export function BrandLockup({
         <span
           className={cn(
             "text-[15px] font-semibold tracking-[0.16em]",
-            tone === "dark" ? "text-white" : "text-foreground",
+            tone === "dark" ? "text-white" : "text-[#30212A]",
           )}
         >
           SHEPHERD
@@ -54,7 +54,7 @@ export function BrandLockup({
           <span
             className={cn(
               "mt-1 text-[9.5px] font-medium uppercase tracking-[0.2em]",
-              tone === "dark" ? "text-sidebar-muted" : "text-muted-foreground",
+              tone === "dark" ? "text-[#E8C9D7]" : "text-[#81717A]",
             )}
           >
             Safety Intelligence

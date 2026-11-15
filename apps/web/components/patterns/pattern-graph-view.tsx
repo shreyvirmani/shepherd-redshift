@@ -125,7 +125,7 @@ const NODE_TYPES = { pattern: PatternGraphNode };
 
 const KIND_STROKE: Record<RelationshipKind, string> = {
   suggested: "#8a6a24",
-  user_reported: "#0f5a4e",
+  user_reported: "#C65D89",
 };
 
 type HandleSide = (typeof HANDLE_SIDES)[number]["id"];
@@ -355,9 +355,9 @@ export function PatternGraphView() {
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
                     variant="outline"
-                    className="gap-1.5 border-[#c9e2d3] bg-[#f1f7f3] text-[#1a5c3d]"
+                    className="gap-1.5 border-[#C65D89]/20 bg-[#FFF4F7] text-[#873B60]"
                   >
-                    <span className="size-1.5 rounded-full bg-[#1c6b47]" />
+                    <span className="size-1.5 rounded-full bg-[#C65D89]" />
                     {pluralize(userReportedCount, "user-reported link")}
                   </Badge>
                   <Badge
@@ -438,16 +438,16 @@ export function PatternGraphView() {
                             (node.data as PatternNodeData).category,
                           ).dotClassName.includes("bg-muted-foreground")
                             ? "#8a938f"
-                            : "#0f5a4e"
+                            : "#C65D89"
                         }
-                        maskColor="rgba(246, 245, 240, 0.72)"
+                        maskColor="rgba(255, 249, 251, 0.72)"
                       />
                       <Panel
                         position="top-left"
                         className="rounded-md border border-border bg-card/95 px-2.5 py-1.5 text-[10px] leading-relaxed text-muted-foreground shadow-sm backdrop-blur"
                       >
                         <span className="mr-3 inline-flex items-center gap-1.5">
-                          <span className="h-px w-4 bg-[#0f5a4e]" />
+                          <span className="h-px w-4 bg-[#C65D89]" />
                           User-reported
                         </span>
                         <span className="inline-flex items-center gap-1.5">
@@ -470,8 +470,8 @@ export function PatternGraphView() {
                             "flex size-7 items-center justify-center rounded-md border",
                             RELATIONSHIP_META[selectedEdge.relationship].kind ===
                               "user_reported"
-                              ? "border-[#c9e2d3] bg-[#f1f7f3] text-[#1a5c3d]"
-                              : "border-[#ecd9b4] bg-[#fbf5e9] text-[#74500a]",
+                              ? "border-[#C65D89]/20 bg-[#FFF4F7] text-[#873B60]"
+                              : "border-[#D69A3D]/20 bg-[#D69A3D]/10 text-[#D69A3D]",
                           )}
                         >
                           <Link2 className="size-3.5" />
@@ -539,7 +539,7 @@ export function PatternGraphView() {
                     </CardHeader>
                     <CardContent className="space-y-3">
                       <div className="flex gap-2.5">
-                        <span className="mt-1 h-px w-6 shrink-0 bg-[#0f5a4e]" />
+                        <span className="mt-1 h-px w-6 shrink-0 bg-[#C65D89]" />
                         <p className="text-[11px] leading-relaxed text-muted-foreground">
                           <span className="font-medium text-foreground">
                             Solid links

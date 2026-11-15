@@ -45,7 +45,7 @@ export function CategoryChart({ incidents }: { incidents: Incident[] }) {
           margin={{ top: 0, right: 12, bottom: 0, left: 0 }}
           barCategoryGap={10}
         >
-          <CartesianGrid horizontal={false} stroke="#ecebe4" />
+          <CartesianGrid horizontal={false} stroke="#F0DCE5" />
           <XAxis type="number" hide allowDecimals={false} />
           <YAxis
             type="category"
@@ -53,17 +53,17 @@ export function CategoryChart({ incidents }: { incidents: Incident[] }) {
             width={104}
             axisLine={false}
             tickLine={false}
-            tick={{ fontSize: 11, fill: "#5d6964" }}
+            tick={{ fontSize: 11, fill: "#81717A" }}
           />
           <Tooltip
-            cursor={{ fill: "rgba(15,90,78,0.05)" }}
+            cursor={{ fill: "rgba(198, 93, 137, 0.08)" }}
             content={({ active, payload }) => {
               if (!active || !payload?.length) return null;
               const item = payload[0].payload as { label: string; count: number };
               return (
-                <div className="rounded-md border border-border bg-card px-2.5 py-1.5 text-xs shadow-md">
-                  <p className="font-medium">{item.label}</p>
-                  <p className="text-muted-foreground">
+                <div className="rounded-md border border-[#F0DCE5] bg-card px-2.5 py-1.5 text-xs shadow-md">
+                  <p className="font-medium text-[#30212A]">{item.label}</p>
+                  <p className="text-[#81717A]">
                     {item.count} {item.count === 1 ? "incident" : "incidents"}
                   </p>
                 </div>
@@ -72,7 +72,7 @@ export function CategoryChart({ incidents }: { incidents: Incident[] }) {
           />
           <Bar
             dataKey="count"
-            fill="#0f5a4e"
+            fill="#C65D89"
             radius={[0, 4, 4, 0]}
             barSize={12}
             isAnimationActive={false}

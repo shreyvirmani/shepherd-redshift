@@ -77,7 +77,7 @@ export function OfflineBanner() {
 
   if (!online) {
     return (
-      <div className="border-b border-[#ecd9b4] bg-[#fbf5e9] px-4 py-2 text-[#74500a] sm:px-6 lg:px-8">
+      <div className="border-b border-[#D69A3D]/25 bg-[#D69A3D]/10 px-4 py-2 text-[#D69A3D] sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1440px] items-start gap-2.5 text-xs leading-relaxed">
           <WifiOff className="mt-0.5 size-3.5 shrink-0" />
           <p>
@@ -91,7 +91,7 @@ export function OfflineBanner() {
 
   if (wasOffline) {
     return (
-      <div className="border-b border-[#c9e2d3] bg-[#f1f7f3] px-4 py-2 text-[#1a5c3d] sm:px-6 lg:px-8">
+      <div className="border-b border-[#36866B]/25 bg-[#36866B]/10 px-4 py-2 text-[#36866B] sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-[1440px] items-start gap-2.5 text-xs leading-relaxed">
           <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
           <p>

@@ -17,7 +17,7 @@ export const RISK_BANDS: Record<RiskLevel, RiskBand> = {
     shortLabel: "Low",
     description: "0–29 on the experimental review-priority scale.",
     textClassName: "text-risk-low",
-    badgeClassName: "bg-[#e7f1ea] text-[#1c6b47] border-[#c9e2d3]",
+    badgeClassName: "bg-[#36866B]/10 text-[#36866B] border-[#36866B]/25",
     barClassName: "bg-risk-low",
   },
   moderate: {
@@ -26,7 +26,7 @@ export const RISK_BANDS: Record<RiskLevel, RiskBand> = {
     shortLabel: "Moderate",
     description: "30–59 on the experimental review-priority scale.",
     textClassName: "text-risk-moderate",
-    badgeClassName: "bg-[#f8efdc] text-[#8a5a00] border-[#ecd9b4]",
+    badgeClassName: "bg-[#D69A3D]/10 text-[#D69A3D] border-[#D69A3D]/25",
     barClassName: "bg-risk-moderate",
   },
   high: {
@@ -35,7 +35,7 @@ export const RISK_BANDS: Record<RiskLevel, RiskBand> = {
     shortLabel: "High",
     description: "60–100 on the experimental review-priority scale.",
     textClassName: "text-risk-high",
-    badgeClassName: "bg-[#f9e9e7] text-[#a1241c] border-[#f0cdc8]",
+    badgeClassName: "bg-[#D94B5B]/10 text-[#D94B5B] border-[#D94B5B]/25",
     barClassName: "bg-risk-high",
   },
   insufficient_data: {

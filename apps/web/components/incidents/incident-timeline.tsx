@@ -120,10 +120,10 @@ function buildEvents(
 }
 
 const TONE_STYLES: Record<TimelineEvent["tone"], string> = {
-  default: "border-border bg-card text-muted-foreground",
-  success: "border-[#c9e2d3] bg-[#f1f7f3] text-[#1c6b47]",
-  info: "border-[#cfdcee] bg-[#f2f6fb] text-[#3c6495]",
-  warning: "border-[#ecd9b4] bg-[#fbf5e9] text-[#8a5a00]",
+  default: "border-[#F0DCE5] bg-card text-[#81717A]",
+  success: "border-[#36866B]/20 bg-[#36866B]/10 text-[#36866B]",
+  info: "border-[#6587B7]/20 bg-[#6587B7]/10 text-[#6587B7]",
+  warning: "border-[#D69A3D]/20 bg-[#D69A3D]/10 text-[#D69A3D]",
 };
 
 export function IncidentTimeline({

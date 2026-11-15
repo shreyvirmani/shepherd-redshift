@@ -10,7 +10,7 @@ interface SafeRouteMapProps {
 }
 
 const CORRIDOR_COLORS: Record<ConcernLevel, { fill: string; color: string; opacity: number }> = {
-  normal: { fill: "rgba(15, 90, 78, 0.14)", color: "#0f5a4e", opacity: 0.14 },
+  normal: { fill: "rgba(198, 93, 137, 0.15)", color: "#C65D89", opacity: 0.15 },
   advisory: { fill: "rgba(146, 64, 14, 0.18)", color: "#92400e", opacity: 0.18 },
   warning: { fill: "rgba(194, 65, 12, 0.22)", color: "#c2410c", opacity: 0.22 },
   critical: { fill: "rgba(153, 27, 27, 0.28)", color: "#991b1b", opacity: 0.28 },
@@ -105,7 +105,7 @@ export function SafeRouteMap({
           const destIcon = L.divIcon({
             className: "leaflet-dest-marker",
             html: `
-              <div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#065f46;color:#ffffff;font-size:12px;border:2px solid #ffffff;box-shadow:0 2px 5px rgba(0,0,0,0.35);">
+              <div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#36866B;color:#ffffff;font-size:12px;border:2px solid #ffffff;box-shadow:0 2px 5px rgba(0,0,0,0.35);">
                 📍
               </div>
             `,
@@ -125,7 +125,7 @@ export function SafeRouteMap({
             ];
 
             const routeLine = L.polyline(routePath, {
-              color: "#0f5a4e",
+              color: "#C65D89",
               weight: 4,
               opacity: 0.9,
               dashArray: "6, 6",

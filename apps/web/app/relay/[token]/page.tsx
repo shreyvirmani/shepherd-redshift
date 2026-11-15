@@ -7,6 +7,7 @@ import {
   Clock,
   ExternalLink,
   MapPin,
+  Navigation,
   PhoneCall,
   Send,
   ShieldAlert,
@@ -111,6 +112,10 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
     ? `https://www.google.com/maps/search/?api=1&query=${relayData.last_location.latitude},${relayData.last_location.longitude}`
     : null;
 
+  const directionsUrl = relayData.last_location
+    ? `https://www.google.com/maps/dir/?api=1&destination=${relayData.last_location.latitude},${relayData.last_location.longitude}`
+    : null;
+
   const staticMapUrl = relayData.last_location
     ? `https://staticmap.openstreetmap.de/staticmap.php?center=${relayData.last_location.latitude},${relayData.last_location.longitude}&zoom=16&size=400x200&maptype=mapnik&markers=${relayData.last_location.latitude},${relayData.last_location.longitude},ol-marker`
     : null;
@@ -118,7 +123,7 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
   return (
     <div className="min-h-screen bg-zinc-100/60 p-4 sm:p-8 dark:bg-zinc-950">
       <div className="mx-auto max-w-lg space-y-4">
-        {/* Header Banner */}
+        {/* 1. Header Banner */}
         <div className="rounded-xl border border-rose-300 bg-linear-to-b from-rose-50 to-white p-4 shadow-sm dark:border-rose-900 dark:from-zinc-900 dark:to-zinc-950">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -127,80 +132,24 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
               </div>
               <div>
                 <h1 className="text-base font-bold text-zinc-900 dark:text-zinc-100">
-                  SHEPHERD Rescue Relay
+                  {relayData.user_display_name} may need your help
                 </h1>
                 <p className="text-xs text-zinc-600 dark:text-zinc-400">
-                  Emergency alert coordination for trusted contacts
+                  A safety alert was triggered at {new Date(relayData.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}. Please respond immediately.
                 </p>
               </div>
             </div>
 
             <Badge
               variant={acknowledged ? "default" : "destructive"}
-              className={acknowledged ? "bg-emerald-600 text-white" : "bg-rose-600 text-white animate-pulse"}
+              className={acknowledged ? "bg-emerald-600 text-white shrink-0" : "bg-rose-600 text-white animate-pulse shrink-0"}
             >
               {acknowledged ? "ACKNOWLEDGED" : "ACTION REQUIRED"}
             </Badge>
           </div>
         </div>
 
-        {/* User Alert Details */}
-        <Card className="border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-semibold">Distress Signal Details</CardTitle>
-            <CardDescription className="text-xs">
-              A safety alert was triggered for <span className="font-semibold text-zinc-900 dark:text-zinc-100">{relayData.user_display_name}</span>.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent className="space-y-3">
-            <div className="rounded-md border border-zinc-100 bg-zinc-50 p-3 text-xs dark:border-zinc-800 dark:bg-zinc-950">
-              <div className="font-semibold text-zinc-800 dark:text-zinc-200">Alert Reason:</div>
-              <p className="mt-0.5 text-zinc-600 dark:text-zinc-400">{relayData.reason}</p>
-
-              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-zinc-500">
-                <Clock className="size-3.5" />
-                <span>Triggered at: {new Date(relayData.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-              </div>
-            </div>
-
-            {relayData.last_location && (
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1">
-                    <MapPin className="size-3.5 text-rose-600" />
-                    Last Known Location:
-                  </span>
-                  <span className="font-mono text-[11px] text-zinc-500">
-                    {relayData.last_location.latitude.toFixed(5)}, {relayData.last_location.longitude.toFixed(5)}
-                  </span>
-                </div>
-
-                {staticMapUrl && (
-                  <img
-                    src={staticMapUrl}
-                    alt="Last known location map"
-                    className="w-full rounded-lg mt-2"
-                  />
-                )}
-
-                {mapUrl && (
-                  <a
-                    href={mapUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-zinc-900 text-xs font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-                  >
-                    <ExternalLink className="size-3.5" />
-                    Open in Google Maps
-                  </a>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Contact Acknowledgement Section */}
+        {/* 2. Acknowledgement form FIRST (move above distress details) */}
         <Card className="border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
           <CardHeader className="pb-3">
             <div className="flex items-center gap-2">
@@ -211,8 +160,8 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
             </div>
             <CardDescription className="text-xs">
               {acknowledged
-                ? "Your acknowledgement has been logged. The user can see you are responding."
-                : "Let the user and the system know that you have seen this alert."}
+                ? `Your acknowledgement has been logged. ${relayData.user_display_name} can see you are responding.`
+                : `${relayData.user_display_name} needs you. Please confirm you've seen this.`}
             </CardDescription>
           </CardHeader>
 
@@ -273,25 +222,109 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
           </CardContent>
         </Card>
 
-        {/* Emergency Calling fallback */}
+        {/* 3. Distress details card (move below) */}
+        <Card className="border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-semibold">Distress Signal Details</CardTitle>
+            <CardDescription className="text-xs">
+              A safety alert was triggered for <span className="font-semibold text-zinc-900 dark:text-zinc-100">{relayData.user_display_name}</span>.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent className="space-y-3">
+            <div className="rounded-md border border-zinc-100 bg-zinc-50 p-3 text-xs dark:border-zinc-800 dark:bg-zinc-950">
+              <div className="font-semibold text-zinc-800 dark:text-zinc-200">Alert Reason:</div>
+              <p className="mt-0.5 text-zinc-600 dark:text-zinc-400">{relayData.reason}</p>
+
+              <div className="mt-2 flex items-center gap-1.5 text-[11px] text-zinc-500">
+                <Clock className="size-3.5" />
+                <span>Triggered at: {new Date(relayData.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* 4. Location card with static map image */}
+        {relayData.last_location && (
+          <Card className="border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                  <MapPin className="size-4 text-rose-600" />
+                  <span>Last Known Location</span>
+                </CardTitle>
+                <span className="font-mono text-[11px] text-zinc-500">
+                  {relayData.last_location.latitude.toFixed(5)}, {relayData.last_location.longitude.toFixed(5)}
+                </span>
+              </div>
+            </CardHeader>
+
+            <CardContent className="space-y-3">
+              {staticMapUrl && (
+                <img
+                  src={staticMapUrl}
+                  alt="Last known location map"
+                  className="w-full rounded-lg"
+                />
+              )}
+
+              {mapUrl && (
+                <a
+                  href={mapUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex h-10 w-full items-center justify-center gap-2 rounded-md bg-zinc-900 text-xs font-semibold text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                >
+                  <ExternalLink className="size-3.5" />
+                  Open in Google Maps
+                </a>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 5. Emergency numbers: increase button size to h-11, add Google Maps directions link as a third button */}
         <div className="rounded-lg border border-zinc-200 bg-white p-3 text-center dark:border-zinc-800 dark:bg-zinc-900">
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
             If you cannot reach them or believe they are in immediate danger:
           </p>
-          <div className="mt-2 flex justify-center gap-2">
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
             <a
               href="tel:112"
-              className="inline-flex items-center gap-1.5 rounded-md bg-rose-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-rose-700"
+              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md bg-rose-600 px-4 text-xs font-semibold text-white hover:bg-rose-700"
             >
               <PhoneCall className="size-3.5" />
               Call 112 (Police)
             </a>
             <a
               href="tel:181"
-              className="inline-flex items-center gap-1.5 rounded-md bg-purple-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-purple-700"
+              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md bg-purple-600 px-4 text-xs font-semibold text-white hover:bg-purple-700"
             >
               <PhoneCall className="size-3.5" />
               Call 181 (Helpline)
+            </a>
+            {directionsUrl && (
+              <a
+                href={directionsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-11 items-center justify-center gap-1.5 rounded-md bg-blue-600 px-4 text-xs font-semibold text-white hover:bg-blue-700"
+              >
+                <Navigation className="size-3.5" />
+                Get Directions
+              </a>
+            )}
+          </div>
+
+          {/* WhatsApp share button below emergency numbers (only on mobile, use md:hidden) */}
+          <div className="mt-3 flex justify-center md:hidden">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`🛡️ SHEPHERD Alert: ${relayData.user_display_name} triggered a safety alert at ${new Date(relayData.timestamp).toLocaleTimeString()}. Last location: ${mapUrl || 'not available'}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 rounded-md bg-[#25D366] px-4 py-2.5 text-xs font-semibold text-white md:hidden"
+            >
+              Share via WhatsApp
             </a>
           </div>
         </div>

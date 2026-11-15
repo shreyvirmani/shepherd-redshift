@@ -38,7 +38,7 @@ export function Topbar() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
+      <header className="sticky top-0 z-40 border-b border-[#F0DCE5] bg-[#FFF9FB]/90 backdrop-blur-md">
         <div className="mx-auto flex h-14 w-full max-w-[1440px] items-center gap-3 px-4 sm:px-6 lg:px-8">
           <Button
             variant="ghost"
@@ -55,11 +55,11 @@ export function Topbar() {
           </div>
 
           <div className="hidden min-w-0 items-center gap-2 lg:flex">
-            <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-muted-foreground">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#873B60]">
               Workspace
             </span>
-            <span className="text-muted-foreground/40">/</span>
-            <span className="truncate text-sm font-medium">
+            <span className="text-[#81717A]/40">/</span>
+            <span className="truncate text-sm font-semibold text-[#30212A]">
               {current?.label ?? "SHEPHERD"}
             </span>
           </div>
@@ -70,7 +70,7 @@ export function Topbar() {
               asChild
               variant="ghost"
               size="icon-sm"
-              className="hidden text-muted-foreground sm:inline-flex"
+              className="hidden text-muted-foreground sm:inline-flex hover:text-[#C65D89]"
               aria-label="Privacy and AI disclosures"
             >
               <Link href="/settings#privacy">
@@ -82,11 +82,13 @@ export function Topbar() {
               <DropdownMenuTrigger asChild>
                 <button
                   type="button"
-                  className="flex cursor-pointer items-center gap-2 rounded-full p-0.5 transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/40"
+                  className="flex cursor-pointer items-center gap-2 rounded-full p-0.5 transition-colors hover:bg-[#FCE7EF] focus-visible:ring-2 focus-visible:ring-ring/40"
                   aria-label="Account menu"
                 >
-                  <Avatar className="size-8 border border-border">
-                    <AvatarFallback>{initials(user?.displayName)}</AvatarFallback>
+                  <Avatar className="size-8 border border-[#F0DCE5]">
+                    <AvatarFallback className="bg-[#FCE7EF] text-[#873B60] font-semibold text-xs">
+                      {initials(user?.displayName)}
+                    </AvatarFallback>
                   </Avatar>
                 </button>
               </DropdownMenuTrigger>

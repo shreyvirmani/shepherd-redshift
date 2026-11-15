@@ -145,7 +145,7 @@ export function SentinelHubView() {
             <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
               Sentinel Safety Monitoring
             </h1>
-            <Badge className="bg-emerald-600 text-white">Live AI Protection</Badge>
+            <Badge className="bg-linear-to-r from-[#C65D89] to-[#DF8EAF] text-white border-0 font-medium">Live AI Protection</Badge>
           </div>
           <p className="text-xs text-zinc-600 dark:text-zinc-400">
             Detect unusual patterns. Verify distress. Coordinate help.
@@ -317,15 +317,28 @@ export function SentinelHubView() {
 
                   {/* Corridor & Contact Summary */}
                   <div className="rounded-lg border border-zinc-100 bg-zinc-50 p-3 text-xs text-zinc-600 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-400">
-                    <div className="flex items-center justify-between">
+                    <div>
                       <span className="font-semibold text-zinc-800 dark:text-zinc-200">
                         SafeCircle Contacts Linked:
                       </span>
-                      <span>
-                        {contacts.length > 0 ? `${contacts.length} designated contact(s)` : "None (Demo link available)"}
-                      </span>
+                      {contacts.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5 mt-1">
+                          {contacts.map((c) => (
+                            <span
+                              key={c.id}
+                              className="rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] text-emerald-800 dark:bg-emerald-950 dark:border-emerald-900 dark:text-emerald-300"
+                            >
+                              {c.name}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="mt-1">
+                          <span className="text-zinc-500">None added yet — add contacts in SafeCircle</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex items-center justify-between mt-1">
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-zinc-200/60 dark:border-zinc-800">
                       <span className="font-semibold text-zinc-800 dark:text-zinc-200">
                         Route Corridor Tolerance:
                       </span>
@@ -335,7 +348,7 @@ export function SentinelHubView() {
 
                   <Button
                     type="submit"
-                    className="h-11 w-full bg-emerald-700 text-sm font-semibold text-white hover:bg-emerald-800 active:scale-[0.99] dark:bg-emerald-600"
+                    className="h-11 w-full bg-linear-to-r from-[#C65D89] to-[#DF8EAF] text-sm font-semibold text-white hover:from-[#A74773] hover:to-[#C65D89] active:scale-[0.99] shadow-sm"
                     disabled={loading}
                   >
                     <Shield className="mr-2 size-4" />

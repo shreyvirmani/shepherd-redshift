@@ -48,7 +48,7 @@ export default function AuthLayout({
         <BrandLockup tone="dark" />
 
         <div className="relative max-w-[460px] space-y-7">
-          <p className="text-[11px] font-medium uppercase tracking-[0.2em] text-[#9ccbb8]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[#F3B7CD]">
             Safety intelligence workspace
           </p>
           <h1 className="font-display text-4xl leading-[1.12] tracking-[-0.02em] text-balance xl:text-[44px]">
@@ -66,7 +66,7 @@ export default function AuthLayout({
               return (
                 <li key={principle.title} className="flex gap-3">
                   <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04]">
-                    <Icon className="size-3.5 text-[#b9dccd]" />
+                    <Icon className="size-3.5 text-[#F3B7CD]" />
                   </span>
                   <div>
                     <p className="text-xs font-semibold text-white">

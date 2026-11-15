@@ -324,11 +324,11 @@ export function SafeRouteNavigator() {
         // Reset previous layers
         layerGroup.clearLayers();
 
-        // 1. Safe Route Polyline (Deep Emerald #0f5a4e)
+        // 1. Safe Route Polyline (Primary Rose #C65D89)
         const safePoly = L.polyline(
           currentCorridor.safeRoute.path.map((p) => [p.lat, p.lng]),
           {
-            color: "#0f5a4e",
+            color: "#C65D89",
             weight: selectedRouteType === "safe" ? 6 : 3.5,
             opacity: selectedRouteType === "safe" ? 1.0 : 0.45,
             lineCap: "round",
@@ -356,10 +356,10 @@ export function SafeRouteNavigator() {
           currentCorridor.safeRoute.path.forEach((pt) => {
             const circle = L.circle([pt.lat, pt.lng], {
               radius: 120,
-              color: "#0f5a4e",
+              color: "#C65D89",
               weight: 1,
-              opacity: 0.3,
-              fillColor: "#0f5a4e",
+              opacity: 0.25,
+              fillColor: "#C65D89",
               fillOpacity: 0.14,
             });
             layerGroup.addLayer(circle);
@@ -425,17 +425,17 @@ export function SafeRouteNavigator() {
           );
         layerGroup.addLayer(originMarker);
 
-        // 7. Destination Marker (Emerald Badge B)
+        // 7. Destination Marker (Success Badge B)
         const destIcon = L.divIcon({
           className: "leaflet-dest-icon",
-          html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#065f46;color:#fff;font-weight:bold;font-size:12px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);cursor:pointer;">B</div>`,
+          html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#36866B;color:#fff;font-weight:bold;font-size:12px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);cursor:pointer;">B</div>`,
           iconSize: [28, 28],
           iconAnchor: [14, 14],
         });
         const destMarker = L.marker([currentCorridor.destCoords.lat, currentCorridor.destCoords.lng], { icon: destIcon })
           .bindPopup(
             `<div style="font-family:sans-serif;font-size:12px;">
-              <strong style="color:#065f46;">Destination</strong><br/>
+              <strong style="color:#36866B;">Destination</strong><br/>
               <span>${currentCorridor.destinationName}</span>
             </div>`
           );

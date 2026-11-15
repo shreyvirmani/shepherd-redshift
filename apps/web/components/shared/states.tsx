@@ -25,7 +25,7 @@ export function EmptyState({
       )}
     >
       {icon ? (
-        <div className="mb-4 flex size-11 items-center justify-center rounded-full border border-border bg-card text-muted-foreground shadow-[0_1px_2px_rgba(20,27,25,0.04)]">
+        <div className="mb-4 flex size-11 items-center justify-center rounded-full border border-[#F0DCE5] bg-[#FFF4F7] text-[#C65D89] shadow-xs">
           {icon}
         </div>
       ) : null}
@@ -55,16 +55,16 @@ export function ErrorState({
     <div
       role="alert"
       className={cn(
-        "flex flex-col items-start gap-3 rounded-lg border border-[#f0cdc8] bg-[#fcf2f0] px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
+        "flex flex-col items-start gap-3 rounded-lg border border-[#D94B5B]/25 bg-[#D94B5B]/10 px-4 py-4 sm:flex-row sm:items-center sm:justify-between",
         className,
       )}
     >
       <div className="flex items-start gap-3">
-        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-destructive" />
+        <AlertTriangle className="mt-0.5 size-4 shrink-0 text-[#D94B5B]" />
         <div>
-          <p className="text-sm font-semibold text-[#8f2a22]">{title}</p>
+          <p className="text-sm font-semibold text-[#D94B5B]">{title}</p>
           {message ? (
-            <p className="mt-0.5 text-sm leading-relaxed text-[#8f2a22]/85">
+            <p className="mt-0.5 text-sm leading-relaxed text-[#D94B5B]/90">
               {message}
             </p>
           ) : null}
@@ -75,7 +75,7 @@ export function ErrorState({
           variant="outline"
           size="sm"
           onClick={onRetry}
-          className="shrink-0 border-[#e8bdb7] bg-white/70 text-[#8f2a22] hover:bg-white"
+          className="shrink-0 border-[#D94B5B]/30 bg-white/70 text-[#D94B5B] hover:bg-white"
         >
           <RefreshCw className="size-3.5" />
           Retry

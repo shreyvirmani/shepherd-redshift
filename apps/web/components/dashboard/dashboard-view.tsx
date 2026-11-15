@@ -262,7 +262,7 @@ export function DashboardView() {
           <CardContent>
             {activeSession ? (
               <div className="space-y-4">
-                <div className="rounded-lg border border-[#cfdcee] bg-[#f2f6fb] p-4">
+                <div className="rounded-lg border border-[#F0DCE5] bg-[#FFF4F7] p-4">
                   <div className="flex items-center justify-between gap-2">
                     <SafetyStatusBadge status={displaySessionStatus(activeSession)} />
                     <span className="text-[11px] text-muted-foreground">
@@ -396,7 +396,7 @@ export function DashboardView() {
                 </Button>
               </div>
               <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-[11px] leading-relaxed text-muted-foreground">
-                <CheckCircle2 className="mr-1.5 inline size-3 text-[#1c6b47]" />
+                <CheckCircle2 className="mr-1.5 inline size-3 text-[#36866B]" />
                 {data.lastEvidenceAt
                   ? `Last upload ${formatRelative(data.lastEvidenceAt)}. Hashes are shown per file.`
                   : "No evidence has been uploaded yet."}
@@ -479,38 +479,40 @@ function DashboardHeading({
   now: Date | null;
 }) {
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-      <div className="space-y-1.5">
-        <p className="text-[11px] font-medium uppercase tracking-[0.16em] text-muted-foreground">
-          {now
-            ? now.toLocaleDateString(undefined, {
-                weekday: "long",
-                day: "numeric",
-                month: "long",
-              })
-            : "Workspace overview"}
-        </p>
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-[28px]">
-          {now ? `${greetingForHour(now.getHours())}, ${firstName}.` : `Welcome back, ${firstName}.`}
-        </h1>
-        <p className="max-w-2xl text-sm leading-relaxed text-muted-foreground">
-          A current view of your documentation, evidence metadata and safety
-          check-ins.
-        </p>
-      </div>
-      <div className="flex flex-wrap gap-2">
-        <Button asChild>
-          <Link href="/incidents/new">
-            <FileText className="size-4" />
-            New incident
-          </Link>
-        </Button>
-        <Button asChild variant="outline">
-          <Link href="/safecircle">
-            <Users className="size-4" />
-            Start check-in
-          </Link>
-        </Button>
+    <div className="relative overflow-hidden rounded-2xl border border-[#F0DCE5] bg-linear-to-br from-[#FFF4F7] via-[#FCE7EF]/60 to-[#F3B7CD]/25 p-6 shadow-[0_2px_12px_rgba(198,93,137,0.06)]">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="space-y-1.5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#873B60]">
+            {now
+              ? now.toLocaleDateString(undefined, {
+                  weekday: "long",
+                  day: "numeric",
+                  month: "long",
+                })
+              : "Workspace overview"}
+          </p>
+          <h1 className="text-2xl font-bold tracking-tight text-[#30212A] sm:text-[28px]">
+            {now ? `${greetingForHour(now.getHours())}, ${firstName}.` : `Welcome back, ${firstName}.`}
+          </h1>
+          <p className="max-w-2xl text-sm leading-relaxed text-[#81717A]">
+            A current view of your documentation, evidence metadata and safety
+            check-ins.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2.5">
+          <Button asChild className="bg-linear-to-r from-[#C65D89] to-[#DF8EAF] text-white shadow-[0_2px_8px_rgba(198,93,137,0.25)] hover:from-[#A74773] hover:to-[#C65D89]">
+            <Link href="/incidents/new">
+              <FileText className="size-4" />
+              New incident
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="border-[#F0DCE5] bg-white text-[#30212A] hover:bg-[#FFF4F7] hover:border-[#DF8EAF]">
+            <Link href="/safecircle">
+              <Users className="size-4 text-[#873B60]" />
+              Start check-in
+            </Link>
+          </Button>
+        </div>
       </div>
     </div>
   );
@@ -522,8 +524,8 @@ function ActiveCountdown({ deadline }: { deadline: string }) {
     <p
       className={
         expired
-          ? "mt-3 text-xs font-medium text-[#9a6100]"
-          : "mt-3 text-xs font-medium text-[#1f456f]"
+          ? "mt-3 text-xs font-semibold text-[#D69A3D]"
+          : "mt-3 text-xs font-semibold text-[#6587B7]"
       }
     >
       {label}

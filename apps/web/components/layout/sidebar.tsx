@@ -42,7 +42,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
     <nav aria-label="Primary" className="flex-1 space-y-6 overflow-y-auto px-3 py-5 scrollbar-slim">
       <Button
         asChild
-        className="w-full justify-start bg-[#dcebe4] text-[#0d3b33] hover:bg-[#cfe4da]"
+        className="w-full justify-start bg-linear-to-r from-[#C65D89] to-[#DF8EAF] text-white hover:from-[#A74773] hover:to-[#C65D89] shadow-sm font-semibold text-xs h-9"
         size="sm"
       >
         <Link href="/incidents/new" onClick={onNavigate}>
@@ -53,7 +53,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
 
       {NAV_GROUPS.map((group) => (
         <div key={group.label} className="space-y-1">
-          <p className="px-3 pb-1 text-[10px] font-medium uppercase tracking-[0.16em] text-sidebar-muted/70">
+          <p className="px-3 pb-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[#E8C9D7]/70">
             {group.label}
           </p>
           {group.items.map((item) => {
@@ -67,22 +67,22 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
                 onClick={onNavigate}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors",
+                  "group relative flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all duration-150",
                   active
-                    ? "bg-sidebar-active text-white"
-                    : "text-sidebar-muted hover:bg-white/[0.055] hover:text-white",
+                    ? "bg-linear-to-r from-[#873B60] to-[#C65D89]/40 text-white font-medium shadow-xs"
+                    : "text-[#E8C9D7] hover:bg-[#C65D89]/15 hover:text-white",
                 )}
               >
                 {active ? (
                   <span
                     aria-hidden="true"
-                    className="absolute left-0 top-1/2 h-5 w-[2px] -translate-y-1/2 rounded-full bg-[#9ccbb8]"
+                    className="absolute left-0 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-full bg-[#F3B7CD]"
                   />
                 ) : null}
                 <Icon
                   className={cn(
-                    "size-4 shrink-0",
-                    active ? "text-[#b9dccd]" : "text-sidebar-muted/80",
+                    "size-4 shrink-0 transition-colors",
+                    active ? "text-[#F3B7CD]" : "text-[#F3B7CD]/70 group-hover:text-[#F3B7CD]",
                   )}
                 />
                 <span className="truncate">{item.label}</span>
@@ -107,8 +107,8 @@ export function SidebarFooter() {
 
   return (
     <div className="border-t border-sidebar-border px-3 py-3">
-      <div className="mb-3 flex items-start gap-2 rounded-lg border border-sidebar-border bg-white/[0.03] px-3 py-2.5 text-[11px] leading-relaxed text-sidebar-muted">
-        <ShieldAlert className="mt-0.5 size-3.5 shrink-0" />
+      <div className="mb-3 flex items-start gap-2 rounded-lg border border-sidebar-border bg-white/[0.04] px-3 py-2.5 text-[11px] leading-relaxed text-[#E8C9D7]">
+        <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-[#F3B7CD]" />
         <p>
           SHEPHERD is a documentation tool, not an emergency service. Call local
           emergency services if you are in immediate danger.
@@ -119,10 +119,10 @@ export function SidebarFooter() {
         <DropdownMenuTrigger asChild>
           <button
             type="button"
-            className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/[0.055] focus-visible:ring-2 focus-visible:ring-[#9ccbb8]/50"
+            className="flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2 py-2 text-left transition-colors hover:bg-white/[0.06] focus-visible:ring-2 focus-visible:ring-[#F3B7CD]/50"
           >
             <Avatar className="size-8 border border-white/10">
-              <AvatarFallback className="bg-[#23352f] text-[#cfe4da]">
+              <AvatarFallback className="bg-[#873B60] text-[#FCE7EF] font-semibold text-xs">
                 {initials(user?.displayName)}
               </AvatarFallback>
             </Avatar>
@@ -130,11 +130,11 @@ export function SidebarFooter() {
               <span className="block truncate text-xs font-medium text-white">
                 {user?.displayName ?? "SHEPHERD user"}
               </span>
-              <span className="block truncate text-[10px] text-sidebar-muted">
+              <span className="block truncate text-[10px] text-[#E8C9D7]">
                 {isDemoSession ? "Local demo session" : user?.email}
               </span>
             </span>
-            <ChevronDown className="size-3.5 shrink-0 text-sidebar-muted" />
+            <ChevronDown className="size-3.5 shrink-0 text-[#E8C9D7]" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent side="top" align="start" className="w-56">
@@ -166,7 +166,7 @@ export function DesktopSidebar() {
   return (
     <aside className="hidden lg:sticky lg:top-0 lg:flex lg:h-dvh lg:w-[264px] lg:shrink-0 lg:flex-col lg:border-r lg:border-sidebar-border lg:bg-sidebar">
       <div className="sidebar-grid border-b border-sidebar-border px-5 py-5">
-        <Link href="/dashboard" className="rounded-md focus-visible:ring-2 focus-visible:ring-[#9ccbb8]/50">
+        <Link href="/dashboard" className="rounded-md focus-visible:ring-2 focus-visible:ring-[#F3B7CD]/50">
           <BrandLockup tone="dark" />
         </Link>
       </div>
@@ -185,7 +185,7 @@ export function MobileSidebar({
 }) {
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="p-0">
+      <SheetContent side="left" className="p-0 bg-sidebar border-r border-sidebar-border">
         <SheetTitle className="sr-only">Navigation</SheetTitle>
         <SheetDescription className="sr-only">
           SHEPHERD application navigation
