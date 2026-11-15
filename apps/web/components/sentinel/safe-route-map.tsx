@@ -53,15 +53,15 @@ export function SafeRouteMap({
             attributionControl: true,
           });
 
-          L.tileLayer(
-            "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
-            {
-              attribution:
-                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-              maxZoom: 19,
-              subdomains: "abcd",
-            }
-          ).addTo(map);
+          const cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY || "cb1_599f_1_3c89a0d4011867be9f0f9d8d";
+          const tileUrl = `https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png?key=${cartoKey}`;
+
+          L.tileLayer(tileUrl, {
+            attribution:
+              '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            maxZoom: 19,
+            subdomains: "abcd",
+          }).addTo(map);
 
           mapRef.current = map;
           layerGroupRef.current = L.layerGroup().addTo(map);

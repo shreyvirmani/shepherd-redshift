@@ -5,6 +5,7 @@ import path from "path";
 export async function GET() {
   let apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
   let mapId = process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID";
+  let cartoKey = process.env.NEXT_PUBLIC_CARTO_API_KEY || "cb1_599f_1_3c89a0d4011867be9f0f9d8d";
 
   if (!apiKey) {
     try {
@@ -29,5 +30,5 @@ export async function GET() {
     }
   }
 
-  return NextResponse.json({ apiKey, mapId });
+  return NextResponse.json({ apiKey, mapId, cartoKey });
 }
