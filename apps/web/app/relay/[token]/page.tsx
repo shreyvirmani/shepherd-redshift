@@ -111,8 +111,8 @@ export default function RescueRelayPage({ params }: RelayPageProps) {
     ? `https://www.google.com/maps/search/?api=1&query=${relayData.last_location.latitude},${relayData.last_location.longitude}`
     : null;
 
-  const staticMapUrl = relayData.last_location && process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    ? `https://maps.googleapis.com/maps/api/staticmap?center=${relayData.last_location.latitude},${relayData.last_location.longitude}&zoom=16&size=400x200&markers=color:red%7C${relayData.last_location.latitude},${relayData.last_location.longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+  const staticMapUrl = relayData.last_location
+    ? `https://staticmap.openstreetmap.de/staticmap.php?center=${relayData.last_location.latitude},${relayData.last_location.longitude}&zoom=16&size=400x200&maptype=mapnik&markers=${relayData.last_location.latitude},${relayData.last_location.longitude},ol-marker`
     : null;
 
   return (

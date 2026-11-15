@@ -35,7 +35,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getMapsLoader, getMapsApiKey } from "@/lib/maps/loader";
 
 interface RouteOption {
   id: "safe" | "shortest";
@@ -270,217 +269,210 @@ export function SafeRouteNavigator() {
   const [showLightingLayer, setShowLightingLayer] = React.useState(true);
   const [showIncidentLayer, setShowIncidentLayer] = React.useState(true);
   const [showHavenLayer, setShowHavenLayer] = React.useState(true);
-  const [mapAuthError, setMapAuthError] = React.useState<string | null>(null);
 
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
-  const mapInstanceRef = React.useRef<google.maps.Map | null>(null);
-  const safePolylineRef = React.useRef<google.maps.Polyline | null>(null);
-  const shortestPolylineRef = React.useRef<google.maps.Polyline | null>(null);
-  const markersRef = React.useRef<Array<google.maps.Marker | any>>([]);
-  const circlesRef = React.useRef<google.maps.Circle[]>([]);
-
-  const [apiKey, setApiKey] = React.useState<string>(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
-  const [mapId, setMapId] = React.useState<string>(process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID");
-  const hasApiKey = Boolean(apiKey);
+  const mapInstanceRef = React.useRef<any>(null);
+  const layersGroupRef = React.useRef<any>(null);
 
   const currentCorridor = PRESET_CORRIDORS.find((c) => c.id === selectedPresetId) ?? PRESET_CORRIDORS[0];
   const activeRoute = selectedRouteType === "safe" ? currentCorridor.safeRoute : currentCorridor.shortestRoute;
 
-  // Dynamically obtain API key if dev server had empty process.env at launch
+  // Initialize or update Leaflet map whenever route, corridor, or layer toggles change
   React.useEffect(() => {
-    if (!apiKey) {
-      getMapsApiKey().then((k) => {
-        if (k) setApiKey(k);
-      });
-    }
-  }, [apiKey]);
-
-  // Intercept Google Maps auth failure events (e.g. ApiTargetBlockedMapError)
-  React.useEffect(() => {
-    if (typeof window !== "undefined") {
-      const prev = (window as any).gm_authFailure;
-      (window as any).gm_authFailure = () => {
-        if (typeof prev === "function") prev();
-        setMapAuthError("ApiTargetBlockedMapError: Maps JavaScript API is not enabled or is restricted for this key in Google Cloud Console.");
-      };
-    }
-  }, []);
-
-  // Initialize or update real Google Maps if API key is present
-  React.useEffect(() => {
-    if (!hasApiKey || !mapContainerRef.current) return;
+    if (!mapContainerRef.current) return;
 
     let isMounted = true;
 
-    async function initGoogleMap() {
+    async function initLeaflet() {
       try {
-        const loader = getMapsLoader(apiKey);
-        const [{ Map }, markerLib] = await Promise.all([
-          loader.importLibrary("maps") as Promise<google.maps.MapsLibrary>,
-          loader.importLibrary("marker") as Promise<google.maps.MarkerLibrary>,
-        ]);
-
+        const L = (await import("leaflet")).default;
         if (!isMounted || !mapContainerRef.current) return;
 
-        // Clean up previous map objects
-        markersRef.current.forEach((m) => {
-          if (m?.setMap) m.setMap(null);
-          else if (m) m.map = null;
-        });
-        markersRef.current = [];
-        circlesRef.current.forEach((c) => c.setMap(null));
-        circlesRef.current = [];
-        if (safePolylineRef.current) safePolylineRef.current.setMap(null);
-        if (shortestPolylineRef.current) shortestPolylineRef.current.setMap(null);
+        // Initialize Map if not already created
+        if (!mapInstanceRef.current) {
+          const center: [number, number] = [
+            (currentCorridor.originCoords.lat + currentCorridor.destCoords.lat) / 2,
+            (currentCorridor.originCoords.lng + currentCorridor.destCoords.lng) / 2,
+          ];
 
-        // Center between origin and destination
-        const center = {
-          lat: (currentCorridor.originCoords.lat + currentCorridor.destCoords.lat) / 2,
-          lng: (currentCorridor.originCoords.lng + currentCorridor.destCoords.lng) / 2,
-        };
+          const map = L.map(mapContainerRef.current, {
+            center,
+            zoom: 15,
+            zoomControl: true,
+            attributionControl: true,
+          });
 
-        const map = mapInstanceRef.current ?? new Map(mapContainerRef.current, {
-          center,
-          zoom: 15,
-          mapId: mapId || "DEMO_MAP_ID",
-          disableDefaultUI: true,
-          zoomControl: true,
-        });
-        mapInstanceRef.current = map;
+          // Modern high-DPI CartoDB Voyager tiles (crisp, beautiful pastel roads and buildings)
+          L.tileLayer(
+            "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+            {
+              attribution:
+                '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+              maxZoom: 19,
+              subdomains: "abcd",
+            }
+          ).addTo(map);
 
-        // Draw Safe Route Polyline (Deep Emerald #0f5a4e)
-        safePolylineRef.current = new google.maps.Polyline({
-          path: currentCorridor.safeRoute.path,
-          map,
-          strokeColor: "#0f5a4e",
-          strokeWeight: selectedRouteType === "safe" ? 6 : 3,
-          strokeOpacity: selectedRouteType === "safe" ? 1.0 : 0.45,
-          zIndex: selectedRouteType === "safe" ? 10 : 2,
-        });
+          mapInstanceRef.current = map;
+          layersGroupRef.current = L.layerGroup().addTo(map);
+        }
 
-        // Draw Shortest Route Polyline (Warning Red/Amber #b45309)
-        shortestPolylineRef.current = new google.maps.Polyline({
-          path: currentCorridor.shortestRoute.path,
-          map,
-          strokeColor: "#b45309",
-          strokeWeight: selectedRouteType === "shortest" ? 6 : 3,
-          strokeOpacity: selectedRouteType === "shortest" ? 1.0 : 0.45,
-          zIndex: selectedRouteType === "shortest" ? 10 : 2,
-        });
+        const map = mapInstanceRef.current;
+        const layerGroup = layersGroupRef.current;
+        if (!map || !layerGroup) return;
 
-        // Add protective lighting corridor circles along Safe Route
+        // Reset previous layers
+        layerGroup.clearLayers();
+
+        // 1. Safe Route Polyline (Deep Emerald #0f5a4e)
+        const safePoly = L.polyline(
+          currentCorridor.safeRoute.path.map((p) => [p.lat, p.lng]),
+          {
+            color: "#0f5a4e",
+            weight: selectedRouteType === "safe" ? 6 : 3.5,
+            opacity: selectedRouteType === "safe" ? 1.0 : 0.45,
+            lineCap: "round",
+            lineJoin: "round",
+          }
+        );
+        layerGroup.addLayer(safePoly);
+
+        // 2. Shortest Route Polyline (Warning Amber/Red #b45309)
+        const shortestPoly = L.polyline(
+          currentCorridor.shortestRoute.path.map((p) => [p.lat, p.lng]),
+          {
+            color: "#b45309",
+            weight: selectedRouteType === "shortest" ? 5 : 2.5,
+            opacity: selectedRouteType === "shortest" ? 1.0 : 0.4,
+            dashArray: selectedRouteType === "shortest" ? undefined : "6, 8",
+            lineCap: "round",
+            lineJoin: "round",
+          }
+        );
+        layerGroup.addLayer(shortestPoly);
+
+        // 3. Protective Lighting Corridor Circles along Safe Route
         if (showLightingLayer) {
           currentCorridor.safeRoute.path.forEach((pt) => {
-            const circle = new google.maps.Circle({
-              map,
-              center: pt,
+            const circle = L.circle([pt.lat, pt.lng], {
               radius: 120,
-              fillColor: "rgba(15, 90, 78, 0.16)",
-              fillOpacity: 0.16,
-              strokeColor: "#0f5a4e",
-              strokeOpacity: 0.25,
-              strokeWeight: 1,
+              color: "#0f5a4e",
+              weight: 1,
+              opacity: 0.3,
+              fillColor: "#0f5a4e",
+              fillOpacity: 0.14,
             });
-            circlesRef.current.push(circle);
+            layerGroup.addLayer(circle);
           });
         }
 
-        // Add Hazard Markers (Past Incidents & Dark spots) along Shortest Route
+        // 4. Incident Hazards along Shortest Route
         if (showIncidentLayer) {
           currentCorridor.shortestRoute.hazards.forEach((h) => {
-            const hazardDiv = document.createElement("div");
-            hazardDiv.className = "flex items-center justify-center size-7 rounded-full bg-rose-600 text-white shadow-md border-2 border-white text-xs font-bold";
-            hazardDiv.title = `${h.title}: ${h.description}`;
-            hazardDiv.innerHTML = "!";
+            const hazardIcon = L.divIcon({
+              className: "leaflet-hazard-icon",
+              html: `<div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#e11d48;color:#fff;font-weight:bold;font-size:12px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);cursor:pointer;" title="${h.title}">!</div>`,
+              iconSize: [24, 24],
+              iconAnchor: [12, 12],
+            });
+            const hazardMarker = L.marker([h.lat, h.lng], { icon: hazardIcon })
+              .bindPopup(
+                `<div style="font-family:sans-serif;font-size:12px;line-height:1.4;">
+                  <strong style="color:#e11d48;">⚠️ ${h.title}</strong><br/>
+                  <span style="color:#4b5563;">${h.description}</span>
+                </div>`
+              );
+            layerGroup.addLayer(hazardMarker);
+          });
+        }
 
-            try {
-              if (markerLib?.AdvancedMarkerElement) {
-                const marker = new markerLib.AdvancedMarkerElement({
-                  map,
-                  position: { lat: h.lat, lng: h.lng },
-                  content: hazardDiv,
-                  title: `${h.title} — ${h.description}`,
-                });
-                markersRef.current.push(marker);
-              } else {
-                throw new Error("fallback");
-              }
-            } catch {
-              const marker = new google.maps.Marker({
-                map,
-                position: { lat: h.lat, lng: h.lng },
-                title: `${h.title} — ${h.description}`,
-                icon: "https://maps.google.com/mapfiles/ms/icons/red-dot.png",
+        // 5. Safe Havens along Safe Route
+        if (showHavenLayer && currentCorridor.safeRoute.safeHavens.length > 0) {
+          currentCorridor.safeRoute.safeHavens.forEach((haven, idx) => {
+            const pt = currentCorridor.safeRoute.path[Math.min(idx + 1, currentCorridor.safeRoute.path.length - 2)];
+            if (pt) {
+              const havenIcon = L.divIcon({
+                className: "leaflet-haven-icon",
+                html: `<div style="display:flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:#0d9488;color:#fff;font-size:11px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);cursor:pointer;" title="${haven}">🛡️</div>`,
+                iconSize: [24, 24],
+                iconAnchor: [12, 12],
               });
-              markersRef.current.push(marker);
+              const havenMarker = L.marker([pt.lat, pt.lng], { icon: havenIcon })
+                .bindPopup(
+                  `<div style="font-family:sans-serif;font-size:12px;line-height:1.4;">
+                    <strong style="color:#0f5a4e;">🛡️ Safe Haven</strong><br/>
+                    <span style="color:#374151;">${haven}</span>
+                  </div>`
+                );
+              layerGroup.addLayer(havenMarker);
             }
           });
         }
 
-        // Origin Marker (Blue)
-        try {
-          const originMarker = new google.maps.Marker({
-            map,
-            position: currentCorridor.originCoords,
-            title: `Origin: ${currentCorridor.originName}`,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 8,
-              fillColor: "#2563eb",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2,
-            },
-          });
-          markersRef.current.push(originMarker);
-        } catch (e) {
-          console.warn("Origin marker error:", e);
-        }
+        // 6. Origin Marker (Blue Badge A)
+        const originIcon = L.divIcon({
+          className: "leaflet-origin-icon",
+          html: `<div style="display:flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:50%;background:#2563eb;color:#fff;font-weight:bold;font-size:12px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);cursor:pointer;">A</div>`,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+        });
+        const originMarker = L.marker([currentCorridor.originCoords.lat, currentCorridor.originCoords.lng], { icon: originIcon })
+          .bindPopup(
+            `<div style="font-family:sans-serif;font-size:12px;">
+              <strong style="color:#2563eb;">Origin</strong><br/>
+              <span>${currentCorridor.originName}</span>
+            </div>`
+          );
+        layerGroup.addLayer(originMarker);
 
-        // Destination Marker (Emerald)
-        try {
-          const destMarker = new google.maps.Marker({
-            map,
-            position: currentCorridor.destCoords,
-            title: `Destination: ${currentCorridor.destinationName}`,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 9,
-              fillColor: "#065f46",
-              fillOpacity: 1,
-              strokeColor: "#ffffff",
-              strokeWeight: 2.5,
-            },
-          });
-          markersRef.current.push(destMarker);
-        } catch (e) {
-          console.warn("Destination marker error:", e);
-        }
+        // 7. Destination Marker (Emerald Badge B)
+        const destIcon = L.divIcon({
+          className: "leaflet-dest-icon",
+          html: `<div style="display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:#065f46;color:#fff;font-weight:bold;font-size:12px;border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,0.35);cursor:pointer;">B</div>`,
+          iconSize: [28, 28],
+          iconAnchor: [14, 14],
+        });
+        const destMarker = L.marker([currentCorridor.destCoords.lat, currentCorridor.destCoords.lng], { icon: destIcon })
+          .bindPopup(
+            `<div style="font-family:sans-serif;font-size:12px;">
+              <strong style="color:#065f46;">Destination</strong><br/>
+              <span>${currentCorridor.destinationName}</span>
+            </div>`
+          );
+        layerGroup.addLayer(destMarker);
 
-        // Fit map bounds
-        const bounds = new google.maps.LatLngBounds();
-        bounds.extend(currentCorridor.originCoords);
-        bounds.extend(currentCorridor.destCoords);
-        currentCorridor.safeRoute.path.forEach((p) => bounds.extend(p));
-        currentCorridor.shortestRoute.path.forEach((p) => bounds.extend(p));
-        map.fitBounds(bounds, 40);
-      } catch (err: any) {
-        console.warn("Dashboard map error:", err);
-        setMapAuthError(err?.message || "Failed to load Google Maps");
+        // Fit map bounds to encompass all points with padding
+        const allPoints: [number, number][] = [
+          [currentCorridor.originCoords.lat, currentCorridor.originCoords.lng],
+          [currentCorridor.destCoords.lat, currentCorridor.destCoords.lng],
+          ...currentCorridor.safeRoute.path.map((p) => [p.lat, p.lng] as [number, number]),
+          ...currentCorridor.shortestRoute.path.map((p) => [p.lat, p.lng] as [number, number]),
+        ];
+        map.fitBounds(L.latLngBounds(allPoints), { padding: [40, 40] });
+      } catch (err) {
+        console.warn("Leaflet map initialization error:", err);
       }
     }
 
-    initGoogleMap();
+    initLeaflet();
   }, [
-    hasApiKey,
-    apiKey,
-    mapId,
     selectedPresetId,
     selectedRouteType,
     showLightingLayer,
     showIncidentLayer,
+    showHavenLayer,
     currentCorridor,
   ]);
+
+  // Clean up Leaflet on unmount
+  React.useEffect(() => {
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
 
   return (
     <Card className="border-border/80 bg-card/90 shadow-sm backdrop-blur-xs transition-shadow hover:shadow-md">
@@ -714,161 +706,32 @@ export function SafeRouteNavigator() {
             </div>
           </div>
 
-          {/* Warning banner if API key is blocked or missing required service */}
-          {mapAuthError && (
-            <div className="flex items-start gap-2.5 rounded-lg border border-amber-500/30 bg-amber-500/10 p-2.5 text-xs text-amber-900 dark:text-amber-200">
-              <AlertTriangle className="size-4 shrink-0 text-amber-600 dark:text-amber-400 mt-0.5" />
-              <div className="space-y-0.5">
-                <p className="font-semibold text-amber-950 dark:text-amber-100">
-                  Google Maps API Permission Required:
-                </p>
-                <p className="text-amber-800 dark:text-amber-300">
-                  Your API key was blocked by Google (<code className="rounded bg-amber-500/20 px-1 py-0.5">ApiTargetBlockedMapError</code>). Please enable &quot;Maps JavaScript API&quot; in Google Cloud Console or remove key restrictions. Interactive vector mode is active below.
-                </p>
+          {/* Real Leaflet Map Canvas */}
+          <div className="relative h-72 sm:h-80 w-full overflow-hidden rounded-xl border border-border bg-card shadow-inner z-0">
+            <div ref={mapContainerRef} className="h-full w-full z-0" />
+
+            {/* Floating Top Route Legend */}
+            <div className="absolute top-2.5 left-2.5 z-[1000] flex flex-wrap items-center gap-2 rounded-lg border border-border/80 bg-background/95 px-2.5 py-1.5 text-[11px] shadow-sm backdrop-blur-xs">
+              <div className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full bg-[#0f5a4e]" />
+                <span className="font-semibold text-foreground">Safe Route</span>
+              </div>
+              <span className="text-muted-foreground">|</span>
+              <div className="flex items-center gap-1.5">
+                <span className="size-2.5 rounded-full bg-[#b45309]" />
+                <span className="font-medium text-muted-foreground">Shortest Path</span>
               </div>
             </div>
-          )}
 
-          {/* Map Canvas / Vector Simulation */}
-          <div className="relative h-72 sm:h-80 w-full overflow-hidden rounded-xl border border-border bg-card shadow-inner">
-            <div
-              ref={mapContainerRef}
-              className={`h-full w-full ${hasApiKey && !mapAuthError ? "block" : "hidden"}`}
-            />
-            {(!hasApiKey || mapAuthError) && (
-              /* High-fidelity Vector Simulation with full interactive parity */
-              <div className="relative h-full w-full bg-[#f4f3ec] dark:bg-[#121917] p-4 flex flex-col justify-between overflow-hidden">
-                {/* SVG Visual Road Graph */}
-                <svg
-                  className="absolute inset-0 h-full w-full"
-                  viewBox="0 0 600 320"
-                  preserveAspectRatio="none"
-                >
-                  <defs>
-                    <linearGradient id="safeRouteGlow" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#0f5a4e" stopOpacity="0.8" />
-                      <stop offset="100%" stopColor="#10b981" stopOpacity="0.8" />
-                    </linearGradient>
-                    <filter id="corridorGlow" x1="-20%" y1="-20%" width="140%" height="140%">
-                      <feGaussianBlur stdDeviation="12" result="blur" />
-                      <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                  </defs>
-
-                  {/* Grid roads / City Blocks */}
-                  <path d="M 40 40 L 560 40 M 40 100 L 560 100 M 40 160 L 560 160 M 40 220 L 560 220 M 40 280 L 560 280" stroke="currentColor" strokeOpacity="0.08" strokeWidth="1" />
-                  <path d="M 100 20 L 100 300 M 200 20 L 200 300 M 300 20 L 300 300 M 400 20 L 400 300 M 500 20 L 500 300" stroke="currentColor" strokeOpacity="0.08" strokeWidth="1" />
-
-                  {/* Safe Route Corridor Buffer (Green Glow) */}
-                  {showLightingLayer && (
-                    <path
-                      d="M 80 240 Q 200 220, 290 140 T 520 80"
-                      fill="none"
-                      stroke="#0f5a4e"
-                      strokeOpacity="0.14"
-                      strokeWidth="48"
-                      strokeLinecap="round"
-                      filter="url(#corridorGlow)"
-                    />
-                  )}
-
-                  {/* Direct Route (Unsafe Shortest Path - through alley) */}
-                  <path
-                    d="M 80 240 L 260 210 L 380 180 L 520 80"
-                    fill="none"
-                    stroke="#b45309"
-                    strokeWidth={selectedRouteType === "shortest" ? "5" : "2.5"}
-                    strokeDasharray={selectedRouteType === "shortest" ? "none" : "6 4"}
-                    strokeOpacity={selectedRouteType === "shortest" ? "1" : "0.35"}
-                    strokeLinecap="round"
-                  />
-
-                  {/* Safe Route (Illuminated Boulevard) */}
-                  <path
-                    d="M 80 240 Q 200 220, 290 140 T 520 80"
-                    fill="none"
-                    stroke="#0f5a4e"
-                    strokeWidth={selectedRouteType === "safe" ? "5" : "2.5"}
-                    strokeOpacity={selectedRouteType === "safe" ? "1" : "0.4"}
-                    strokeLinecap="round"
-                  />
-
-                  {/* Lighting Streetlamps on Safe Route */}
-                  {showLightingLayer && (
-                    <>
-                      <circle cx="140" cy="232" r="6" fill="#f59e0b" fillOpacity="0.8" />
-                      <circle cx="210" cy="205" r="6" fill="#f59e0b" fillOpacity="0.8" />
-                      <circle cx="280" cy="150" r="6" fill="#f59e0b" fillOpacity="0.8" />
-                      <circle cx="370" cy="115" r="6" fill="#f59e0b" fillOpacity="0.8" />
-                      <circle cx="450" cy="95" r="6" fill="#f59e0b" fillOpacity="0.8" />
-                    </>
-                  )}
-
-                  {/* Hazard Spot on Shortest Route */}
-                  {showIncidentLayer && (
-                    <g transform="translate(260, 210)">
-                      <circle r="14" fill="#e11d48" fillOpacity="0.2" className="animate-ping" />
-                      <circle r="9" fill="#e11d48" />
-                      <text x="0" y="3.5" textAnchor="middle" fill="#ffffff" fontSize="9" fontWeight="bold">!</text>
-                    </g>
-                  )}
-
-                  {/* Origin Marker */}
-                  <g transform="translate(80, 240)">
-                    <circle r="12" fill="#2563eb" fillOpacity="0.25" className="animate-ping" />
-                    <circle r="6" fill="#2563eb" stroke="#ffffff" strokeWidth="2" />
-                  </g>
-
-                  {/* Destination Marker */}
-                  <g transform="translate(520, 80)">
-                    <circle r="14" fill="#065f46" fillOpacity="0.2" />
-                    <circle r="7" fill="#065f46" stroke="#ffffff" strokeWidth="2" />
-                  </g>
-                </svg>
-
-                {/* Map Overlay Badges */}
-                <div className="relative z-10 flex items-start justify-between">
-                  <div className="rounded-lg bg-card/90 px-2.5 py-1.5 shadow-sm border border-border text-[11px] backdrop-blur-xs">
-                    <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                      <MapPin className="size-3.5 text-blue-600" />
-                      <span>{currentCorridor.originName}</span>
-                    </div>
-                  </div>
-
-                  <div className="rounded-lg bg-card/90 px-2.5 py-1.5 shadow-sm border border-border text-[11px] backdrop-blur-xs">
-                    <div className="flex items-center gap-1.5 font-semibold text-foreground">
-                      <MapPin className="size-3.5 text-emerald-600" />
-                      <span>{currentCorridor.destinationName}</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Interactive Legend Bar */}
-                <div className="relative z-10 rounded-lg bg-card/95 p-2.5 shadow-sm border border-border backdrop-blur-xs flex flex-wrap items-center justify-between gap-3 text-[11px]">
-                  <div className="flex flex-wrap items-center gap-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="size-2.5 rounded-full bg-primary" />
-                      <span className="font-medium text-foreground">Safe Route (Illuminated Boulevard)</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="size-2.5 rounded-full bg-amber-600" />
-                      <span className="font-medium text-muted-foreground">Shortest Route (Dark Alley)</span>
-                    </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="size-2 rounded-full bg-rose-600" />
-                      <span className="font-medium text-rose-700 dark:text-rose-400">Past Incident Report</span>
-                    </div>
-                  </div>
-
-                  <span className="text-[10px] text-muted-foreground font-mono">
-                    Live Vector View · Fully Integrated
-                  </span>
-                </div>
-              </div>
-            )}
+            {/* Floating Bottom Live Tile Indicator */}
+            <div className="absolute bottom-2.5 right-2.5 z-[1000] flex items-center gap-1.5 rounded-full border border-border/80 bg-background/95 px-2.5 py-1 text-[11px] font-medium shadow-xs backdrop-blur-xs text-foreground">
+              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Leaflet · OpenStreetMap</span>
+            </div>
           </div>
         </div>
 
+        {/* Safe Havens & Emergency Resilience Checklist */}
         {/* Safe Havens & Emergency Resilience Checklist */}
         <div className="rounded-xl border border-border/70 bg-muted/20 p-3">
           <div className="flex items-center justify-between">
