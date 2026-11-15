@@ -35,7 +35,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getMapsLoader } from "@/lib/maps/loader";
+import { getMapsLoader, getMapsApiKey } from "@/lib/maps/loader";
 
 interface RouteOption {
   id: "safe" | "shortest";
@@ -279,9 +279,21 @@ export function SafeRouteNavigator() {
   const markersRef = React.useRef<Array<google.maps.Marker | any>>([]);
   const circlesRef = React.useRef<google.maps.Circle[]>([]);
 
-  const hasApiKey = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+  const [apiKey, setApiKey] = React.useState<string>(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
+  const [mapId, setMapId] = React.useState<string>(process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID");
+  const hasApiKey = Boolean(apiKey);
+
   const currentCorridor = PRESET_CORRIDORS.find((c) => c.id === selectedPresetId) ?? PRESET_CORRIDORS[0];
   const activeRoute = selectedRouteType === "safe" ? currentCorridor.safeRoute : currentCorridor.shortestRoute;
+
+  // Dynamically obtain API key if dev server had empty process.env at launch
+  React.useEffect(() => {
+    if (!apiKey) {
+      getMapsApiKey().then((k) => {
+        if (k) setApiKey(k);
+      });
+    }
+  }, [apiKey]);
 
   // Intercept Google Maps auth failure events (e.g. ApiTargetBlockedMapError)
   React.useEffect(() => {
@@ -302,7 +314,7 @@ export function SafeRouteNavigator() {
 
     async function initGoogleMap() {
       try {
-        const loader = getMapsLoader();
+        const loader = getMapsLoader(apiKey);
         const [{ Map }, markerLib] = await Promise.all([
           loader.importLibrary("maps") as Promise<google.maps.MapsLibrary>,
           loader.importLibrary("marker") as Promise<google.maps.MarkerLibrary>,
@@ -330,7 +342,7 @@ export function SafeRouteNavigator() {
         const map = mapInstanceRef.current ?? new Map(mapContainerRef.current, {
           center,
           zoom: 15,
-          mapId: process.env.NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID || "DEMO_MAP_ID",
+          mapId: mapId || "DEMO_MAP_ID",
           disableDefaultUI: true,
           zoomControl: true,
         });
@@ -461,6 +473,8 @@ export function SafeRouteNavigator() {
     initGoogleMap();
   }, [
     hasApiKey,
+    apiKey,
+    mapId,
     selectedPresetId,
     selectedRouteType,
     showLightingLayer,
@@ -717,9 +731,11 @@ export function SafeRouteNavigator() {
 
           {/* Map Canvas / Vector Simulation */}
           <div className="relative h-72 sm:h-80 w-full overflow-hidden rounded-xl border border-border bg-card shadow-inner">
-            {hasApiKey && !mapAuthError ? (
-              <div ref={mapContainerRef} className="h-full w-full" />
-            ) : (
+            <div
+              ref={mapContainerRef}
+              className={`h-full w-full ${hasApiKey && !mapAuthError ? "block" : "hidden"}`}
+            />
+            {(!hasApiKey || mapAuthError) && (
               /* High-fidelity Vector Simulation with full interactive parity */
               <div className="relative h-full w-full bg-[#f4f3ec] dark:bg-[#121917] p-4 flex flex-col justify-between overflow-hidden">
                 {/* SVG Visual Road Graph */}

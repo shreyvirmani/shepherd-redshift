@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getMapsLoader } from "@/lib/maps/loader";
+import { getMapsLoader, getMapsApiKey } from "@/lib/maps/loader";
 import type { ConcernLevel, SentinelSession, TravelMode } from "@/lib/types/sentinel";
 
 interface SafeRouteMapProps {
@@ -53,12 +53,21 @@ export function SafeRouteMap({
   const currentPosMarkerRef = useRef<any>(null);
   const destinationMarkerRef = useRef<any>(null);
 
+  const [apiKey, setApiKey] = useState<string>(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
   const [isLoading, setIsLoading] = useState(true);
-  const hasApiKey = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+  const hasApiKey = Boolean(apiKey);
+
+  useEffect(() => {
+    if (!apiKey) {
+      getMapsApiKey().then((k) => {
+        if (k) setApiKey(k);
+      });
+    }
+  }, [apiKey]);
 
   useEffect(() => {
     if (!hasApiKey || !mapContainerRef.current) {
-      setIsLoading(false);
+      if (!apiKey) setIsLoading(false);
       return;
     }
 
@@ -66,7 +75,7 @@ export function SafeRouteMap({
 
     async function initMap() {
       try {
-        const loader = getMapsLoader();
+        const loader = getMapsLoader(apiKey);
         const [{ Map }, markerLib] = await Promise.all([
           loader.importLibrary("maps") as Promise<google.maps.MapsLibrary>,
           loader.importLibrary("marker") as Promise<google.maps.MarkerLibrary>,

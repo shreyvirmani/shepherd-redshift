@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
-import { getMapsLoader } from "@/lib/maps/loader";
+import { getMapsLoader, getMapsApiKey } from "@/lib/maps/loader";
 
 interface DestinationAutocompleteProps {
   value: string;
@@ -24,7 +24,16 @@ export function DestinationAutocomplete({
   const inputRef = useRef<HTMLInputElement>(null);
   const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const hasApiKey = Boolean(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY);
+  const [apiKey, setApiKey] = useState<string>(process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "");
+  const hasApiKey = Boolean(apiKey);
+
+  useEffect(() => {
+    if (!apiKey) {
+      getMapsApiKey().then((k) => {
+        if (k) setApiKey(k);
+      });
+    }
+  }, [apiKey]);
 
   useEffect(() => {
     if (!hasApiKey || !inputRef.current) return;
@@ -33,7 +42,7 @@ export function DestinationAutocomplete({
 
     async function initAutocomplete() {
       try {
-        const placesLib = (await getMapsLoader().importLibrary("places")) as google.maps.PlacesLibrary;
+        const placesLib = (await getMapsLoader(apiKey).importLibrary("places")) as google.maps.PlacesLibrary;
         if (!isMounted || !inputRef.current) return;
 
         const autocomplete = new placesLib.Autocomplete(inputRef.current, {
@@ -68,7 +77,7 @@ export function DestinationAutocomplete({
         window.google.maps.event.clearInstanceListeners(autocompleteRef.current);
       }
     };
-  }, [hasApiKey, onChange]);
+  }, [hasApiKey, apiKey, onChange]);
 
   return (
     <Input
