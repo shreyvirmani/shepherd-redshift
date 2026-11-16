@@ -107,14 +107,6 @@ export function SidebarFooter() {
 
   return (
     <div className="border-t border-sidebar-border px-3 py-3">
-      <div className="mb-3 flex items-start gap-2 rounded-lg border border-sidebar-border bg-white/[0.04] px-3 py-2.5 text-[11px] leading-relaxed text-[#E8C9D7]">
-        <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-[#F3B7CD]" />
-        <p>
-          SHEPHERD is a documentation tool, not an emergency service. Call local
-          emergency services if you are in immediate danger.
-        </p>
-      </div>
-
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button

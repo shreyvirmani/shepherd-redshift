@@ -10,7 +10,6 @@ import {
   Link2,
   Network,
   ShieldQuestion,
-  Sparkles,
 } from "lucide-react";
 import {
   Background,
@@ -632,20 +631,6 @@ export function PatternGraphView() {
                         );
                       })}
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-[#e2d7bb] bg-[#fbf7ee]">
-                  <CardContent className="space-y-2 p-4 text-[#6d5420]">
-                    <p className="flex items-center gap-1.5 text-xs font-semibold">
-                      <Sparkles className="size-3.5" />
-                      Suggested, not proven
-                    </p>
-                    <p className="text-[11px] leading-relaxed text-[#6d5420]/90">
-                      PatternGraph links are based on the content and identifiers
-                      in your records. They are informational and do not
-                      establish identity, intent or a shared offender.
-                    </p>
                   </CardContent>
                 </Card>
               </div>

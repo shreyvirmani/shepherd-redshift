@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 import logging
 from typing import Any, Optional
 from uuid import UUID, uuid4
@@ -118,7 +118,24 @@ class InMemorySentinelRepository(BaseSentinelRepository):
         self.anomalies: dict[UUID, dict[str, Any]] = {}
         self.verifications: dict[UUID, dict[str, Any]] = {}
         self.timeline_events: list[dict[str, Any]] = []
-        self.relay_tokens: dict[str, dict[str, Any]] = {}
+        now = datetime.now(timezone.utc)
+        self.relay_tokens: dict[str, dict[str, Any]] = {
+            "demo-rescue": {
+                "token": "demo-rescue",
+                "alert_id": uuid4(),
+                "session_id": uuid4(),
+                "incident_id": uuid4(),
+                "user_display_name": "Anushka (Demo User)",
+                "reason": "Live Rescue Relay simulation active.",
+                "timestamp": now,
+                "expires_at": now + timedelta(hours=4),
+                "last_location": {"latitude": 28.6139, "longitude": 77.2090, "accuracy": 12},
+                "status": "pending",
+                "acknowledged_at": None,
+                "acknowledged_by": None,
+                "relay_notes": None,
+            }
+        }
 
     async def create_session(self, user_id: UUID, data: SentinelSessionCreate) -> SentinelSessionResponse:
         # Check for existing active session

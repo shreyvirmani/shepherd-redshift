@@ -15,52 +15,11 @@ import { useOnlineStatus } from "@/lib/hooks/use-online-status";
 import { cn } from "@/lib/utils/cn";
 
 export function MockDataBadge({ className }: { className?: string }) {
-  if (!isMockApiEnabled) return null;
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Badge
-          variant="outline"
-          className={cn(
-            "gap-1.5 border-[#e2d7bb] bg-[#fbf7ee] text-[#74500a]",
-            className,
-          )}
-        >
-          <FlaskConical className="size-3" />
-          Demo data
-        </Badge>
-      </TooltipTrigger>
-      <TooltipContent>
-        Synthetic sample records from the isolated local mock adapter. No live
-        backend or real user evidence is involved.
-      </TooltipContent>
-    </Tooltip>
-  );
+  return null;
 }
 
 export function DemoModeBanner() {
-  const { authConfigured, isDemoSession } = useAuth();
-  const showMock = isMockApiEnabled;
-  const showAuth = !authConfigured && isDemoSession;
-
-  if (!showMock && !showAuth) return null;
-
-  return (
-    <div className="border-b border-[#e8ddc4] bg-[#fbf7ee] px-4 py-2 text-[#6d5420] sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-[1440px] items-start gap-2.5 text-xs leading-relaxed">
-        <Info className="mt-0.5 size-3.5 shrink-0" />
-        <p>
-          {showMock
-            ? "Demo data mode: all records are synthetic and come from a local mock adapter. Nothing is uploaded to a backend."
-            : null}
-          {showMock && showAuth ? " " : null}
-          {showAuth
-            ? "Supabase authentication is not configured, so this is a clearly labelled local demo session."
-            : null}
-        </p>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 export function OfflineBanner() {

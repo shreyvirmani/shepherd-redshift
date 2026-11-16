@@ -79,7 +79,6 @@ export function SettingsView() {
   const [nameError, setNameError] = React.useState<string | null>(null);
   const [savingName, setSavingName] = React.useState(false);
   const [confirmGlobalSignOut, setConfirmGlobalSignOut] = React.useState(false);
-  const [confirmReset, setConfirmReset] = React.useState(false);
   const [signingOut, setSigningOut] = React.useState(false);
 
   const handleSaveName = async (event: React.FormEvent) => {
@@ -269,18 +268,6 @@ export function SettingsView() {
                   </p>
                 </div>
               </div>
-              <div className="rounded-lg border border-border bg-muted/25 px-3 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
-                SHEPHERD is not an emergency service, legal authority or a
-                guarantee of safety. If you are in immediate danger, contact local
-                emergency services.{" "}
-                <Link
-                  href="/threatlens"
-                  className="font-medium text-primary underline-offset-4 hover:underline"
-                >
-                  Review the AI disclosure
-                </Link>{" "}
-                on ThreatLens for the full wording.
-              </div>
             </CardContent>
           </Card>
 
@@ -433,32 +420,6 @@ export function SettingsView() {
               </p>
             </CardContent>
           </Card>
-
-          {isMockApiEnabled ? (
-            <Card className="border-[#e2d7bb] bg-[#fbf7ee]">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-[#6d5420]">
-                  <DatabaseZap className="size-4" />
-                  Demo data
-                </CardTitle>
-                <CardDescription className="text-[#6d5420]/80">
-                  Reset the synthetic local database used by the isolated mock
-                  adapter. This does not touch a real backend.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full border-[#e2d7bb] bg-white/60 text-[#6d5420] hover:bg-white"
-                  onClick={() => setConfirmReset(true)}
-                >
-                  <DatabaseZap className="size-4" />
-                  Reset demo data
-                </Button>
-              </CardContent>
-            </Card>
-          ) : null}
         </div>
       </div>
 
@@ -479,28 +440,6 @@ export function SettingsView() {
         onConfirm={async () => {
           await signOut({ global: true });
           router.replace("/login");
-        }}
-      />
-
-      <ConfirmDialog
-        open={confirmReset}
-        onOpenChange={setConfirmReset}
-        title="Reset the demo database?"
-        description={
-          <span>
-            All synthetic incidents, evidence metadata, analyses, contacts,
-            sessions and reports in this browser will be replaced with the
-            original demo seed. This cannot be undone.
-          </span>
-        }
-        confirmLabel="Reset demo data"
-        destructive
-        onConfirm={async () => {
-          resetDatabase();
-          toast.success("Demo data reset", {
-            description: "Reloading with the original synthetic seed.",
-          });
-          window.setTimeout(() => window.location.reload(), 600);
         }}
       />
     </div>

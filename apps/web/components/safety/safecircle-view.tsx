@@ -286,19 +286,6 @@ export function SafeCircleView() {
         }
       />
 
-      <Alert variant="info">
-        <BellRing />
-        <div>
-          <AlertTitle>Notifications are simulated in this build</AlertTitle>
-          <AlertDescription>
-            SHEPHERD records the session and its deadline. It does not send SMS or
-            email in this prototype. Do not rely on SafeCircle as an emergency
-            alerting service — contact emergency services or a person you trust
-            directly when you are in immediate danger.
-          </AlertDescription>
-        </div>
-      </Alert>
-
       {activeSession ? (
         <Alert variant="warning">
           <Clock3 />
@@ -750,15 +737,6 @@ export function SafeCircleView() {
                 })}
               </ul>
             )}
-
-            <div className="mt-4 flex items-start gap-2 rounded-lg border border-border bg-muted/25 px-3 py-2.5 text-[11px] leading-relaxed text-muted-foreground">
-              <Info className="mt-0.5 size-3.5 shrink-0" />
-              <p>
-                There is no cancel control because the locked API contract does not
-                define a cancel endpoint. Cancelled sessions may still appear in
-                history if the backend records them.
-              </p>
-            </div>
           </CardContent>
         </Card>
       </div>

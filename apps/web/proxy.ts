@@ -65,7 +65,8 @@ export async function proxy(request: NextRequest) {
     isAuthRoute ||
     PUBLIC_PATHS.has(pathname) ||
     isPublicAsset(pathname) ||
-    pathname === "/";
+    pathname === "/" ||
+    pathname.startsWith("/relay/");
 
   if (!isAuthenticated && !isPublic) {
     const redirectUrl = request.nextUrl.clone();

@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   Car,
   Compass,
+  ExternalLink,
   Footprints,
   Navigation,
   Radio,
@@ -152,18 +154,32 @@ export function SentinelHubView() {
           </p>
         </div>
 
-        {activeSession && !liveIncidentId && (
+        <div className="flex items-center gap-2">
+          {activeSession && !liveIncidentId && (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              className="text-xs"
+              onClick={() => setLiveIncidentId(activeSession.incident_id || "live-session-distress")}
+            >
+              <ShieldAlert className="mr-1.5 size-4" />
+              Switch to Live Incident Mode
+            </Button>
+          )}
           <Button
-            type="button"
-            variant="destructive"
+            asChild
+            variant="outline"
             size="sm"
-            className="text-xs"
-            onClick={() => setLiveIncidentId(activeSession.incident_id || "live-session-distress")}
+            className="text-xs border-[#F0DCE5] bg-white text-[#873B60] hover:bg-[#FFF4F7] hover:text-[#C65D89]"
           >
-            <ShieldAlert className="mr-1.5 size-4" />
-            Switch to Live Incident Mode
+            <Link href="/relay/demo-rescue" target="_blank" rel="noopener noreferrer">
+              <Radio className="mr-1.5 size-3.5 text-[#C65D89]" />
+              Live Rescue Relay
+              <ExternalLink className="ml-1 size-3 text-[#81717A]" />
+            </Link>
           </Button>
-        )}
+        </div>
       </div>
 
       {/* If Live Distress Incident is Active */}

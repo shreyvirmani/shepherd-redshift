@@ -4,6 +4,7 @@ import {
   FolderLock,
   LayoutDashboard,
   Network,
+  Radio,
   ScanSearch,
   Settings,
   ShieldAlert,
@@ -72,6 +73,12 @@ export const NAV_GROUPS: NavGroup[] = [
         label: "Sentinel",
         description: "Active monitoring & live response",
         icon: ShieldAlert,
+      },
+      {
+        href: "/relay/demo-rescue",
+        label: "Rescue Relay",
+        description: "Emergency dispatch & responder portal",
+        icon: Radio,
       },
       {
         href: "/safecircle",
